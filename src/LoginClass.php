@@ -18,6 +18,13 @@ use PhangoApp\PhaModels\CoreFields\PasswordField;*/
 
 namespace PhangoApp\PhaLibs;
 
+use PhangoApp\PhaModels\ModelForm;
+use PhangoApp\PhaI18n\I18n;
+use PhangoApp\PhaModels\CoreFields\PasswordField;
+use PhangoApp\PhaView\View;
+use PhangoApp\PhaUtils\Utils;
+use PhangoApp\PhaRouter\Routes;
+
 class LoginClass {
 
 	public $model_login;
@@ -42,13 +49,14 @@ class LoginClass {
 	public $method_crypt='sha256';
 	public $accept_conditions=1;
 	public $was_prepared=0;
+	public $cookie_path='';
 	
 	public function __construct($model_login, $field_user, $field_password, $field_key, $arr_user_session=array(), $arr_user_insert=array())
 	{
 	
 		//Check is phangoUser the model.
 		
-		if(get_class($model_login)!='UserPhangoModel')
+		if(get_class($model_login)!='PhangoApp\PhaModels\ExtraModels\UserPhangoModel')
 		{
 		
 			/*show_error(I18n::lang('users', 'need_class_special', 'A special library is need, please, inform to admin'),
@@ -61,13 +69,14 @@ class LoginClass {
 			die;
 		
 		}
-	
+		
 		$this->model_login=&$model_login;
 		$this->field_user=$field_user;
 		$this->field_password=$field_password;
 		$this->arr_user_session=$arr_user_session;
 		$this->field_key=$field_key;
 		$this->name_cookie=$this->model_login->name;
+		$this->cookie_path=Routes::$root_url;
 		
 		$this->arr_user_insert=$arr_user_insert;
 		
@@ -188,7 +197,7 @@ class LoginClass {
 					
 					}
 					
-					if(!setcookie(COOKIE_NAME.'_'.sha1($this->name_cookie), $new_token,$lifetime, COOKIE_PATH))
+					if(!setcookie(sha1($this->name_cookie), $new_token,$lifetime, $this->cookie_path))
 					{
 						
 						return false;
@@ -230,10 +239,10 @@ class LoginClass {
 	
 		session_destroy();
 		
-		//setcookie(COOKIE_NAME.'_'.sha1($this->field_key), 0, 0, COOKIE_PATH);
+		//setcookie(COOKIE_NAME.'_'.sha1($this->field_key), 0, 0, $this->cookie_path);
 		
-		setcookie(COOKIE_NAME, 0, 0, COOKIE_PATH);
-		setcookie(COOKIE_NAME.'_'.sha1($this->name_cookie), 0, 0, COOKIE_PATH);
+		//setcookie(COOKIE_NAME, 0, 0, $this->cookie_path);
+		setcookie(sha1($this->name_cookie), 0, 0, $this->cookie_path);
 	
 	}
 	
@@ -272,11 +281,12 @@ class LoginClass {
 		
 		}*/
 		$cookie_val='';
+		$cookie_name_sha1=sha1($this->name_cookie);
 		
-		if(isset($_COOKIE[COOKIE_NAME.'_'.sha1($this->name_cookie)]))
+		if(isset($_COOKIE[$cookie_name_sha1]))
 		{
 		
-			$cookie_val=sha1($_COOKIE[COOKIE_NAME.'_'.sha1($this->name_cookie)]);
+			$cookie_val=sha1($_COOKIE[$cookie_name_sha1]);
 		
 			$check_user=1;
 		
@@ -579,7 +589,7 @@ class LoginClass {
 		
 		//$this->arr_user_insert[]='accept_conditions';
 		
-		$this->model_login->forms['repeat_password']=new ModelForm('repeat_password', 'repeat_password', 'PasswordForm',  I18n::lang('users', 'repeat_password', 'Repeat password'), new PasswordField(), $required=1, $parameters='');
+		$this->model_login->forms['repeat_password']=new ModelForm('repeat_password', 'repeat_password', 'PhangoApp\PhaModels\Coreforms::PasswordForm',  I18n::lang('users', 'repeat_password', 'Repeat password'), new PasswordField(), $required=1, $parameters='');
 		
 		//$this->model_login->InsertAfterFieldForm($this->field_password, 'repeat_password', new ModelForm('repeat_password', 'repeat_password', 'PasswordForm',  I18n::lang('users', 'repeat_password', 'Repeat password'), new PasswordField(), $required=1, $parameters=''));
 			
@@ -609,7 +619,7 @@ class LoginClass {
 	public function obtain_cookie_token()
 	{
 	
-		return $_COOKIE[COOKIE_NAME.'_'.sha1($this->name_cookie)];
+		return $_COOKIE[sha1($this->name_cookie)];
 	
 	}
 	
