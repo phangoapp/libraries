@@ -124,7 +124,9 @@ class LoginClass {
 		
 		$this->arr_user_session[]=$this->field_password;
 		
-		$arr_user=$this->model_login->select_a_row_where('where '.$this->field_user.'="'.$user.'"', $this->arr_user_session);
+		$this->model_login->set_conditions('where '.$this->field_user.'="'.$user.'"');
+		
+		$arr_user=$this->model_login->select_a_row_where($this->arr_user_session);
 		
 		settype($arr_user[$this->model_login->idmodel], 'integer');
 		
@@ -295,7 +297,9 @@ class LoginClass {
 		if($check_user==1)
 		{
 			
-			$arr_user=$this->model_login->select_a_row_where('where '.$this->field_key.'="'.$cookie_val.'"', $this->arr_user_session);
+			$this->model_login->set_conditions('where '.$this->field_key.'="'.$cookie_val.'"');
+			
+			$arr_user=$this->model_login->select_a_row_where($this->arr_user_session);
 			
 			settype($arr_user[$this->model_login->idmodel], 'integer');
 			
@@ -355,7 +359,13 @@ class LoginClass {
 		
 			$email = @form_text( $_POST['email'] );
 			
-			$query=$this->model_login->select( 'where '.$this->field_mail.'="'.$email.'"', array($this->model_login->idmodel, $this->field_name, $this->field_mail) );
+			$this->model_login->set_conditions('where '.$this->field_mail.'="'.$email.'"');
+			
+			$this->model_login->reset_conditions=false;
+			
+			$query=$this->model_login->select(array($this->model_login->idmodel, $this->field_name, $this->field_mail) );
+			
+			$this->model_login->reset_conditions=true;
 			
 			list($iduser_recovery, $nick, $email)=$this->model_login->fetch_row($query);
 			
@@ -366,7 +376,7 @@ class LoginClass {
 			
 				$email = @form_text( $_POST['email'] );
 		
-				$query=$this->model_login->select( 'where '.$this->field_mail.'="'.$email.'"', array($this->model_login->idmodel, $this->field_name, $this->field_mail) );
+				$query=$this->model_login->select(array($this->model_login->idmodel, $this->field_name, $this->field_mail) );
 				
 				list($iduser_recovery, $nick, $email)=$this->model_login->fetch_row($query);
 				
@@ -378,7 +388,9 @@ class LoginClass {
 				
 				$this->model_login->reset_require();
 				
-				$query=$this->model_login->update(array($this->field_recovery => hash($this->method_crypt, $token_recovery)), 'where '.$this->model_login->idmodel.'='.$iduser_recovery);
+				$this->model_login->set_conditions('where '.$this->model_login->idmodel.'='.$iduser_recovery);
+				
+				$query=$this->model_login->update(array($this->field_recovery => hash($this->method_crypt, $token_recovery)));
 				
 				//$query=$model['recovery_password']->insert(array('iduser' => $iduser_recovery, 'token_recovery' => sha1($token_recovery), 'date_token' => TODAY) );
 				
@@ -423,7 +435,9 @@ class LoginClass {
 		
 			load_libraries(array('fields/passwordfield'));
 
-			$query=$this->model_login->select('where '.$this->field_recovery.'="'.hash($this->method_crypt, $_GET['token_recovery']).'"', array($this->model_login->idmodel, $this->field_name, $this->field_mail));
+			$this->model_login->set_conditions('where '.$this->field_recovery.'="'.hash($this->method_crypt, $_GET['token_recovery']).'"');
+			
+			$query=$this->model_login->select(array($this->model_login->idmodel, $this->field_name, $this->field_mail));
 			
 			list($iduser_recovery, $nick, $email)=$this->model_login->fetch_row($query);
 			
