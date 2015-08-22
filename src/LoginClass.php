@@ -160,7 +160,7 @@ class LoginClass {
 			else
 			{
 			
-				if($password==$arr_user[$this->field_password])
+				if($password===$arr_user[$this->field_password])
 				{
 				
 					$yes_password=1;
@@ -448,7 +448,7 @@ class LoginClass {
 				I18n::lang('users', 'new_pass', 'New password') . " : $password" . "\n\n" . 
 				I18n::lang('common', 'thanks', 'Thanks');
 					
-				if ( $email != "" )
+				if ( $email !== "" )
 				{
 					
 					$portal_name=html_entity_decode($portal_name);	
