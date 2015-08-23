@@ -15,7 +15,7 @@ namespace PhangoApp\PhaLibs;
 
 class Emailer {
 
-    function send_mail($sender, $email, $subject, $message, $content_type='plain', $arr_bcc=array(), $attachments=array())
+    static public function send_mail($sender, $email, $subject, $message, $content_type='plain', $arr_bcc=array(), $attachments=array())
     {
 
             
@@ -29,7 +29,7 @@ class Emailer {
             
             }
         
-            $transport = Swift_SmtpTransport::newInstance(SMTP_HOST, SMTP_PORT)->setUsername(SMTP_USER)->setPassword(SMTP_PASS);
+            $transport = \Swift_SmtpTransport::newInstance(SMTP_HOST, SMTP_PORT)->setUsername(SMTP_USER)->setPassword(SMTP_PASS);
             
             if(defined('SMTP_ENCRIPTION'))
             {
@@ -42,17 +42,17 @@ class Emailer {
         else
         {
         
-            $transport = Swift_SmtpTransport::newInstance();
+            $transport = \Swift_SmtpTransport::newInstance();
         
         }
         
         //mailer
         
-        $mailer = Swift_Mailer::newInstance($transport);
+        $mailer = \Swift_Mailer::newInstance($transport);
         
         //message
         
-        $mail_set = Swift_Message::newInstance();
+        $mail_set = \Swift_Message::newInstance();
         
         $mail_set->setSubject($subject);
         // Set the From address with an associative array
@@ -86,7 +86,7 @@ class Emailer {
         foreach($attachments as $attachment)
         {
         
-            $mail_set->attach(Swift_Attachment::fromPath($attachment));
+            $mail_set->attach(\Swift_Attachment::fromPath($attachment));
             
         }
 

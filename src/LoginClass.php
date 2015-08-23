@@ -24,6 +24,7 @@ use PhangoApp\PhaModels\CoreFields\PasswordField;
 use PhangoApp\PhaView\View;
 use PhangoApp\PhaUtils\Utils;
 use PhangoApp\PhaRouter\Routes;
+use PhangoApp\PhaLibs\Emailer;
 
 class LoginClass {
 
@@ -352,7 +353,7 @@ class LoginClass {
 						
 		$_GET['token_recovery']=Utils::form_text($_GET['token_recovery']);
 		
-		load_libraries(array('send_email'));
+		//load_libraries(array('send_email'));
 		
 		if($_GET['token_recovery']=='')
 		{
@@ -384,7 +385,7 @@ class LoginClass {
 			
 				//Create token recovery...
 				
-				$token_recovery=get_token();
+				$token_recovery=Utils::get_token();
 				
 				$this->model_login->reset_require();
 				
@@ -396,7 +397,7 @@ class LoginClass {
 				
 				//Send email
 				
-				$url_check_token=add_extra_fancy_url($this->url_recovery_send, array('token_recovery' => $token_recovery));
+				$url_check_token=Routes::add_get_parameters($this->url_recovery_send, array('token_recovery' => $token_recovery));
 				
 				$topic_email =  I18n::lang('users', 'lost_name', 'You requested a new password');
 				$body_email =  I18n::lang('users', 'hello_lost_pass', 'Hello, you have requested a new password.')."\n\n".
@@ -405,7 +406,7 @@ class LoginClass {
 				I18n::lang('users', 'copy_paste_code', 'Copy and paste the following url').': '.$url_check_token."\n\n". 
 				I18n::lang('common', 'thanks', 'Thanks');
 				
-				if ( send_mail($email, $topic_email, $body_email) )
+				if ( Emailer::send_mail($email, $email, $topic_email, $body_email) )
 				{
 				
 					echo '<p>'. I18n::lang('users', 'explain_email_code_pass', 'You have requested a new password. Copy and paste the following url into your browser, and a new password will be generated for you. If you did not request this operation, ignore this message.').'</p>';
