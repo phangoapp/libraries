@@ -350,14 +350,14 @@ class LoginClass {
 	
 		settype($_GET['token_recovery'], 'string');
 						
-		$_GET['token_recovery']=form_text($_GET['token_recovery']);
+		$_GET['token_recovery']=Utils::form_text($_GET['token_recovery']);
 		
 		load_libraries(array('send_email'));
 		
 		if($_GET['token_recovery']=='')
 		{
 		
-			$email = @form_text( $_POST['email'] );
+			$email = @Utils::form_text( $_POST['email'] );
 			
 			$this->model_login->set_conditions('where '.$this->field_mail.'="'.$email.'"');
 			
@@ -374,7 +374,7 @@ class LoginClass {
 			if($iduser_recovery>0)
 			{
 			
-				$email = @form_text( $_POST['email'] );
+				$email = @Utils::form_text( $_POST['email'] );
 		
 				$query=$this->model_login->select(array($this->model_login->idmodel, $this->field_name, $this->field_mail) );
 				
@@ -433,7 +433,7 @@ class LoginClass {
 		else
 		{
 		
-			load_libraries(array('fields/passwordfield'));
+			//load_libraries(array('fields/passwordfield'));
 
 			$this->model_login->set_conditions('where '.$this->field_recovery.'="'.hash($this->method_crypt, $_GET['token_recovery']).'"');
 			

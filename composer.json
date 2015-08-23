@@ -11,6 +11,11 @@
             "email": "webmaster@web-t-sys.com"
         }
     ],
+    
+    "require": {
+        "swiftmailer/swiftmailer": "^5.4"
+    },
+
     "minimum-stability": "dev-master",
     "require": {},
     "autoload": {
