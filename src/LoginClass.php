@@ -51,6 +51,7 @@ class LoginClass {
 	public $accept_conditions=1;
 	public $was_prepared=0;
 	public $cookie_path='';
+	public $sender='';
 	
 	public function __construct($model_login, $field_user, $field_password, $field_key, $arr_user_session=array(), $arr_user_insert=array())
 	{
@@ -59,11 +60,6 @@ class LoginClass {
 		
 		if(get_class($model_login)!='PhangoApp\PhaModels\ExtraModels\UserPhangoModel')
 		{
-		
-			/*show_error(I18n::lang('users', 'need_class_special', 'A special library is need, please, inform to admin'),
-			I18n::lang('users', 'need_class_special_phango_class', 'Special class PhangoUserClass is needed'));
-		
-			die;*/
 			
 			throw new \Exception('Special UserPhangoModel object is needed');
 			
@@ -242,9 +238,6 @@ class LoginClass {
 	
 		session_destroy();
 		
-		//setcookie(COOKIE_NAME.'_'.sha1($this->field_key), 0, 0, $this->cookie_path);
-		
-		//setcookie(COOKIE_NAME, 0, 0, $this->cookie_path);
 		setcookie(sha1($this->name_cookie), 0, 0, $this->cookie_path);
 	
 	}
@@ -254,35 +247,6 @@ class LoginClass {
 		
 		$check_user=0;
 		
-		/*if(isset($_SESSION[$this->field_key]) && isset($_SESSION[$this->model_login->idmodel]))
-		{
-			
-			$check_user=1;
-			
-		}	
-		else
-		if(isset( $_COOKIE[COOKIE_NAME.'_'.sha1($this->field_key)] ))
-		{
-			
-			$arr_token=$_COOKIE[COOKIE_NAME.'_'.sha1($this->field_key)];
-			
-			$arr_set=@unserialize($arr_token);
-			
-			settype($arr_set['id'], 'integer');
-			
-			if($arr_set['id']>0)
-			{
-			
-				$_SESSION[$this->model_login->idmodel]=$arr_set['id'];
-			
-				$_SESSION[$this->field_key]=$arr_set['token'];
-				
-				$check_user=1;
-				
-			}
-			
-		
-		}*/
 		$cookie_val='';
 		$cookie_name_sha1=sha1($this->name_cookie);
 		
@@ -348,12 +312,10 @@ class LoginClass {
 	
 	public function recovery_password()
 	{
-	
+        
 		settype($_GET['token_recovery'], 'string');
-						
-		$_GET['token_recovery']=Utils::form_text($_GET['token_recovery']);
 		
-		//load_libraries(array('send_email'));
+		$_GET['token_recovery']=trim($this->model_login->check_where_sql($this->field_recovery, $_GET['token_recovery']));
 		
 		if($_GET['token_recovery']=='')
 		{
@@ -385,13 +347,13 @@ class LoginClass {
 			
 				//Create token recovery...
 				
-				$token_recovery=Utils::get_token();
+				$token_recovery=hash($this->method_crypt, Utils::get_token());
 				
 				$this->model_login->reset_require();
 				
 				$this->model_login->set_conditions('where '.$this->model_login->idmodel.'='.$iduser_recovery);
 				
-				$query=$this->model_login->update(array($this->field_recovery => hash($this->method_crypt, $token_recovery)));
+				$query=$this->model_login->update(array($this->field_recovery => $token_recovery));
 				
 				//$query=$model['recovery_password']->insert(array('iduser' => $iduser_recovery, 'token_recovery' => sha1($token_recovery), 'date_token' => TODAY) );
 				
@@ -406,7 +368,7 @@ class LoginClass {
 				I18n::lang('users', 'copy_paste_code', 'Copy and paste the following url').': '.$url_check_token."\n\n". 
 				I18n::lang('common', 'thanks', 'Thanks');
 				
-				if ( Emailer::send_mail($email, $email, $topic_email, $body_email) )
+				if ( Emailer::send_mail($this->sender, $email, $topic_email, $body_email) )
 				{
 				
 					echo '<p>'. I18n::lang('users', 'explain_email_code_pass', 'You have requested a new password. Copy and paste the following url into your browser, and a new password will be generated for you. If you did not request this operation, ignore this message.').'</p>';
@@ -433,10 +395,8 @@ class LoginClass {
 		}
 		else
 		{
-		
-			//load_libraries(array('fields/passwordfield'));
 
-			$this->model_login->set_conditions('where '.$this->field_recovery.'="'.hash($this->method_crypt, $_GET['token_recovery']).'"');
+			$this->model_login->set_conditions('where '.$this->field_recovery.'="'.$_GET['token_recovery'].'"');
 			
 			$query=$this->model_login->select(array($this->model_login->idmodel, $this->field_name, $this->field_mail));
 			
@@ -446,14 +406,8 @@ class LoginClass {
 			
 			if($iduser_recovery>0)
 			{
-			
-				//$query=$this->model_login->select( 'where '.$this->field_mail.'="'.$email.'"', array($this->model_login->idmodel, $this->field_name, $this->field_mail) );
-				
-				//list($iduser_recovery, $nick, $email)=$this->model_login->fetch_row($query);
-				
-				//settype($iduser_recovery, 'integer');
 
-				$password=generate_random_password(); 
+				$password=Utils::generate_random_password(); 
 				
 				$topic_email =  I18n::lang('users', 'success_change_password', 'The password was changed successfully.');
 				$body_email =  I18n::lang('users', 'hello_lost_pass_successful', 'Hello, we have changed your password and is shown below. With these data should be back online in the system.')."\n\n".  
@@ -466,15 +420,13 @@ class LoginClass {
 				if ( $email !== "" )
 				{
 					
-					$portal_name=html_entity_decode($portal_name);	
-					
 					//$query=$model['recovery_password']->delete('where '.$this->model_login->idmodel.'='.$iduser_recovery);
 
 					$this->model_login->reset_require();
 					
 					$query = $this->model_login->update(array($this->field_password => $password, $this->field_recovery => ''), 'where '.$this->model_login->idmodel.'='.$iduser_recovery);
 					
-					if ( send_mail($email, $topic_email, $body_email) )
+					if ( Emailer::send_mail($this->sender, $email, $topic_email, $body_email) )
 					{
 						
 						echo  "<p>" .  I18n::lang('users', 'success_change_password', 'The password was changed successfully.').'</p>';
@@ -602,22 +554,7 @@ class LoginClass {
 	public function prepare_insert_user()
 	{
 		
-		//$this->arr_user_insert[]='accept_conditions';
-		
 		$this->model_login->forms['repeat_password']=new ModelForm('repeat_password', 'repeat_password', 'PhangoApp\PhaModels\Coreforms::PasswordForm',  I18n::lang('users', 'repeat_password', 'Repeat password'), new PasswordField(), $required=1, $parameters='');
-		
-		//$this->model_login->InsertAfterFieldForm($this->field_password, 'repeat_password', new ModelForm('repeat_password', 'repeat_password', 'PasswordForm',  I18n::lang('users', 'repeat_password', 'Repeat password'), new PasswordField(), $required=1, $parameters=''));
-			
-		/*if($captcha_type!='')
-		{
-
-			load_libraries(array('fields/captchafield'));
-
-			$this->model_login->forms['captcha']=new ModelForm('captcha', 'captcha', 'CaptchaForm', I18n::lang('common', 'captcha', 'Captcha'), new CaptchaField(), $required=1, $parameters='');
-
-			$this->arr_user_insert[]='captcha';
-			
-		}*/
 		
 		if($this->accept_conditions==1)
 		{
