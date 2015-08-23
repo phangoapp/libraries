@@ -9,6 +9,8 @@
 *
 */
 
+namespace PhangoApp\PhaLibs;
+
 //Now, we use swiftmailer.
 
 class Emailer {
