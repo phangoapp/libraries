@@ -13,7 +13,7 @@
 
 class Emailer {
 
-    function send_mail($sender, $email, $subject, $message, $content_type='plain', $bcc='', $attachments=array())
+    function send_mail($sender, $email, $subject, $message, $content_type='plain', $arr_bcc=array(), $attachments=array())
     {
 
             
@@ -70,12 +70,8 @@ class Emailer {
         
         $mail_set->setContentType('text/'.$content_type);
         
-        if($bcc!='')
+        if(count($arr_bcc)>0)
         {
-        
-            $arr_bcc=explode(',', $bcc);
-        
-        
         
             $mail_set->setBcc($arr_bcc);
             
