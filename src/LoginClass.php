@@ -88,7 +88,7 @@ class LoginClass {
 		if(count($this->model_login->forms)==0)
 		{
 		
-			$this->model_login->create_form();
+			$this->model_login->create_forms();
 		
 		}
 		
@@ -141,7 +141,7 @@ class LoginClass {
 		}
 		else
 		{
-		
+            
 			$yes_password=0;
 		
 			
@@ -502,7 +502,7 @@ class LoginClass {
 		
 		if(ModelForm::check_form($this->model_login->forms, $post))
 		{
-		
+            
 			/*if($_POST['repeat_password']==$post[$this->field_password] && $check_captcha==1 && $no_user==0)
 			{*/
 			
@@ -519,7 +519,7 @@ class LoginClass {
 			
 			if($this->model_login->insert($post))
 			{
-			
+                
 				return true;
 			
 			}
@@ -527,7 +527,6 @@ class LoginClass {
 			{
 			
 				ModelForm::set_values_form($_POST, $this->model_login->forms, 1);
-			
 			
 				return false;
 				
@@ -542,7 +541,7 @@ class LoginClass {
 				$this->model_login->forms[$this->field_user]->std_error= I18n::lang('users', 'user_or_email_exists', 'User or email exists');
 			
 			}
-		
+            
 			ModelForm::set_values_form($_POST, $this->model_login->forms, 1);
 		
 			return false;
@@ -554,15 +553,18 @@ class LoginClass {
 	public function prepare_insert_user()
 	{
 		
-		$this->model_login->forms['repeat_password']=new ModelForm('repeat_password', 'repeat_password', 'PhangoApp\PhaModels\Coreforms::PasswordForm',  I18n::lang('users', 'repeat_password', 'Repeat password'), new PasswordField(), $required=1, $parameters='');
+		$this->model_login->forms['repeat_password']=new \PhangoApp\PhaModels\Forms\PasswordForm('repeat_password');
+		
+		$this->model_login->forms['repeat_password']->label=I18n::lang('users', 'repeat_password', 'Repeat password');
+		$this->model_login->forms['repeat_password']->required=1;
+		//new ModelForm('repeat_password', 'repeat_password', 'PhangoApp\PhaModels\Coreforms::PasswordForm',  I18n::lang('users', 'repeat_password', 'Repeat password'), new PasswordField(), $required=1, $parameters='');
 		
 		if($this->accept_conditions==1)
 		{
 		
-			$this->model_login->forms['accept_conditions']=new ModelForm('form_login', 'accept_conditions', 'CheckBoxForm',  I18n::lang('users', 'accept_cond_register', 'Accept registration conditions')
-			, new BooleanField(), $required=1, $parameters='');
+			//$this->model_login->forms['accept_conditions']=new ModelForm('form_login', 'accept_conditions', 'CheckBoxForm',  I18n::lang('users', 'accept_cond_register', 'Accept registration conditions'), new BooleanField(), $required=1, $parameters='');
 			
-			$this->arr_user_insert[]='accept_conditions';
+			//$this->arr_user_insert[]='accept_conditions';
 			
 		}
 	
