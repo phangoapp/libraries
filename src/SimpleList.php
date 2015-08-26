@@ -11,6 +11,7 @@
 namespace PhangoApp\PhaLibs;
 use PhangoApp\PhaUtils\SimpleTable;
 use PhangoApp\PhaUtils\Pages;
+use PhangoApp\PhaUtils\Utils;
 use PhangoApp\PhaModels\Webmodel;
 use PhangoApp\PhaI18n\I18n;
 use PhangoApp\PhaRouter\Routes;
@@ -21,6 +22,7 @@ class SimpleList
 	public $arr_options=array();
 	public $yes_options=1;
 	public $arr_fields=array();
+	public $arr_fields_showed=array();
 	public $arr_fields_no_showed=array();
 	public $arr_extra_fields=array();
 	public $arr_extra_fields_func=array();
@@ -37,7 +39,10 @@ class SimpleList
 	public $num_by_page=20;
 	public $begin_page=0;
 	public $initial_num_pages=20;
+	public $order_by='';
 	public $variable_page='begin_page';
+	public $yes_search=1;
+	public $order_field='';
 	
 	function __construct($model_name)
 	{
@@ -52,38 +57,55 @@ class SimpleList
 			Webmodel::$model[$this->model_name]->create_forms();
 		}
 		
+		$this->order_field='';
+		
+	}
+	
+	public function load_fields_showed($arr_fields_no_showed=array())
+	{
+	
+        $arr_fields_show=array();
+        
+        if(count($this->arr_fields)==0)
+        {
+            
+            $this->arr_fields=array_keys(Webmodel::$model[$this->model_name]->components);
+        
+        }
+        
+        
+        if(!in_array(Webmodel::$model[$this->model_name]->idmodel, $this->arr_fields))
+        {
+        
+            $this->arr_fields[]=Webmodel::$model[$this->model_name]->idmodel;
+        
+        }
+        
+        if(count($this->arr_fields_showed)==0)
+        {
+        
+            $this->arr_fields_showed=$this->arr_fields;
+        
+        }
+        
+        $this->arr_fields_showed=array_intersect($this->arr_fields_showed, $this->arr_fields);
+        $arr_fields_showed=array_diff($this->arr_fields_showed, $arr_fields_no_showed);
+
+        
+        foreach($arr_fields_showed as $field)
+        {
+        
+            $arr_fields_show[$field]=Webmodel::$model[$this->model_name]->forms[$field]->label;
+        
+        }
+        
+        return $arr_fields_show;
+	
 	}
 	
 	public function show()
 	{
-		
-		//Utils::load_libraries(array('table_config'));
-		
-		$arr_fields_show=array();
-		
-		if(count($this->arr_fields)==0)
-		{
-			
-			$this->arr_fields=array_keys(Webmodel::$model[$this->model_name]->components);
-		
-		}
-		
-		if(!in_array(Webmodel::$model[$this->model_name]->idmodel, $this->arr_fields))
-		{
-		
-			$this->arr_fields[]=Webmodel::$model[$this->model_name]->idmodel;
-			$this->arr_fields_no_showed[]=Webmodel::$model[$this->model_name]->idmodel;
-		
-		}
-		
-		$arr_fields_showed=array_diff($this->arr_fields, $this->arr_fields_no_showed);
-		
-		foreach($arr_fields_showed as $field)
-		{
-		
-			$arr_fields_show[$field]=Webmodel::$model[$this->model_name]->forms[$field]->label;
-		
-		}
+		$arr_fields_show=$this->load_fields_showed($this->arr_fields_no_showed);
 		
 		//Extra fields name_field
 		
@@ -106,7 +128,18 @@ class SimpleList
 		
 		SimpleTable::top_table_config($arr_fields_show, $this->arr_cell_sizes);
 		
+		if($this->yes_search==1)
+		{
+		
+            $this->search_by_url();
+            
+            $this->change_order_by_url();
+            
+        }
+		
 		Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
+		
+		Webmodel::$model[$this->model_name]->set_order($this->order_by);
 		
 		Webmodel::$model[$this->model_name]->set_limit('limit '.$this->begin_page.', '.$this->num_by_page);
 		
@@ -117,7 +150,7 @@ class SimpleList
 		
 			$arr_row_final=array();
 		
-			foreach($arr_fields_showed as $field)
+			foreach($this->arr_fields_showed as $field)
 			{
 			
 				$arr_row_final[$field]=Webmodel::$model[$this->model_name]->components[$field]->show_formatted($arr_row[$field],  $arr_row[Webmodel::$model[$this->model_name]->idmodel]);
@@ -146,7 +179,9 @@ class SimpleList
 		
 			//Utils::load_libraries(array('pages'));
 			
-			$total_elements=Webmodel::$model[$this->model_name]->select_count($this->where_sql);
+			Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
+			
+			$total_elements=Webmodel::$model[$this->model_name]->select_count();
 			
 			echo '<p>'.I18n::lang('common', 'pages', 'Pages')
 			.': '.Pages::show( $this->begin_page, $total_elements, $this->num_by_page, $this->url_options ,$this->initial_num_pages, $this->variable_page, $label='', $func_jscript='').'</p>';
@@ -172,6 +207,56 @@ class SimpleList
 		return $arr_row;
 
 	}
+	
+	public function change_order_by_url()
+    {
+    
+        //Get: by/field/order/0
+        
+        settype($_GET['order'], 'integer');
+        
+        $arr_order[$_GET['order']]='ASC';
+        $arr_order[0]='ASC';
+        $arr_order[1]='DESC';
+        
+        if(isset($_GET['field_search']))
+        {
+        
+            $_GET['field_search']=Utils::slugify($_GET['field_search']);
+        
+            if(isset(Webmodel::$model[$this->model_name]->components[$_GET['field_search']]))
+            {
+            
+                $this->order_by='order by `'.$_GET['field_search'].'` '.$arr_order[$_GET['order']];
+                
+                $this->url_options=Routes::add_get_parameters($this->url_options, array('field_search' => $_GET['field_search'], 'order' => $_GET['order']));
+            
+            }
+        
+        }
+    
+    }
+    
+    public function search_by_url()
+    {
+        if(isset($_GET['search']) && isset($_GET['field_search']))
+        {
+            
+            $_GET['field_search']=Utils::slugify($_GET['field_search']);
+            
+            if(isset(Webmodel::$model[$this->model_name]->components[$_GET['field_search']]))
+            {
+            
+                $_GET['search']=Webmodel::$model[$this->model_name]->components[$_GET['field_search']]->check($_GET['search']);
+            
+                $this->where_sql='WHERE `'.$_GET['field_search'].'` LIKE "%'.$_GET['search'].'%"';
+                
+                $this->url_options=Routes::add_get_parameters($this->url_options, array('field_search' => $_GET['field_search'], 'search' => $_GET['search'], 'order' => $_GET['order']));
+            
+            }
+        }
+    
+    }
 	
 	static public function BasicOptionsListModel($url_options, $model_name, $id)
     {
