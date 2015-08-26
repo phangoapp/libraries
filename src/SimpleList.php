@@ -10,8 +10,10 @@
 
 namespace PhangoApp\PhaLibs;
 use PhangoApp\PhaUtils\SimpleTable;
+use PhangoApp\PhaUtils\Pages;
 use PhangoApp\PhaModels\Webmodel;
 use PhangoApp\PhaI18n\I18n;
+use PhangoApp\PhaRouter\Routes;
 
 class SimpleList
 {
@@ -25,7 +27,7 @@ class SimpleList
 	public $arr_cell_sizes=array();
 	public $model_name;
 	public $where_sql='';
-	public $options_func='SimpleList::BasicOptionsListModel';
+	public $options_func='PhangoApp\PhaLibs\SimpleList::BasicOptionsListModel';
 	public $options_func_extra_args=array();
 	public $url_options='';
 	public $separator_element='<br />';
@@ -104,7 +106,11 @@ class SimpleList
 		
 		SimpleTable::top_table_config($arr_fields_show, $this->arr_cell_sizes);
 		
-		$query=Webmodel::$model[$this->model_name]->select($this->where_sql.' limit '.$this->begin_page.', '.$this->num_by_page, $this->arr_fields, $this->raw_query);
+		Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
+		
+		Webmodel::$model[$this->model_name]->set_limit('limit '.$this->begin_page.', '.$this->num_by_page);
+		
+		$query=Webmodel::$model[$this->model_name]->select($this->arr_fields, $this->raw_query);
 		
 		while($arr_row=Webmodel::$model[$this->model_name]->fetch_array($query))
 		{
@@ -135,25 +141,24 @@ class SimpleList
 		
 		SimpleTable::bottom_table_config();
 		
-		/*
 		if($this->yes_pagination==1)
 		{
 		
-			Utils::load_libraries(array('pages'));
+			//Utils::load_libraries(array('pages'));
 			
 			$total_elements=Webmodel::$model[$this->model_name]->select_count($this->where_sql);
 			
 			echo '<p>'.I18n::lang('common', 'pages', 'Pages')
-			.': '.pages( $this->begin_page, $total_elements, $this->num_by_page, $this->url_options ,$this->initial_num_pages, $this->variable_page, $label='', $func_jscript='').'</p>';
+			.': '.Pages::show( $this->begin_page, $total_elements, $this->num_by_page, $this->url_options ,$this->initial_num_pages, $this->variable_page, $label='', $func_jscript='').'</p>';
 		
-		}*/
+		}
 	
 	}
 	
 	private function yes_add_options($arr_row, $arr_row_raw, $options_func, $url_options, $model_name, $model_idmodel, $separator_element, $options_func_extra_args)
 	{
 		
-		$arr_row[]=implode($separator_element, $options_func($url_options, $model_name, $arr_row_raw[$model_idmodel], $arr_row_raw, $options_func_extra_args) );
+		$arr_row[]=implode($separator_element, call_user_func_array($options_func, array($url_options, $model_name, $arr_row_raw[$model_idmodel], $arr_row_raw, $options_func_extra_args) ) );
 		
 		return $arr_row;
 
