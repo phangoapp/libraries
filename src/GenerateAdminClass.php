@@ -37,6 +37,8 @@ class GenerateAdminClass {
     
     public $text_add_item='';
     
+    public $no_insert=0;
+    
     public function __construct($model_name, $url)
     {
     
@@ -89,40 +91,44 @@ class GenerateAdminClass {
             
             case 1:
                 
-                $action=Routes::add_get_parameters($this->url, array('op_admin' => 1));
-                    
-                //$this->arr_links[$this->url]=array($action => I18n::lang('common', 'add_new_item', 'Add new item'));
-                
-                $this->hierarchy->update_links($this->url, $action, $this->text_add_item);
-                
-                echo $this->hierarchy->show($action);
-                
-                if(Routes::$request_method=='GET')
+                if(!$this->no_insert)
                 {
                 
-                    $this->form(array(), $action);
-                    
-                }
-                elseif(Routes::$request_method=='POST')
-                {
-                
-                    if(!Webmodel::$model[$this->model_name]->insert($_POST, $this->safe))
-                    {
+                    $action=Routes::add_get_parameters($this->url, array('op_admin' => 1));
                         
-                        $this->form($_POST, $action, 1);
+                    //$this->arr_links[$this->url]=array($action => I18n::lang('common', 'add_new_item', 'Add new item'));
                     
-                    }
-                    else
+                    $this->hierarchy->update_links($this->url, $action, $this->text_add_item);
+                    
+                    echo $this->hierarchy->show($action);
+                    
+                    if(Routes::$request_method=='GET')
                     {
                     
-                        View::set_flash($this->text_add_item_success);
+                        $this->form(array(), $action);
                         
-                        Routes::redirect($this->url);
+                    }
+                    elseif(Routes::$request_method=='POST')
+                    {
+                    
+                        if(!Webmodel::$model[$this->model_name]->insert($_POST, $this->safe))
+                        {
+                            
+                            $this->form($_POST, $action, 1);
+                        
+                        }
+                        else
+                        {
+                        
+                            View::set_flash($this->text_add_item_success);
+                            
+                            Routes::redirect($this->url);
+                        
+                        }
                     
                     }
-                
                 }
-            
+                
             break;
 
             case 2:
