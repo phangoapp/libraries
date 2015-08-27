@@ -173,7 +173,7 @@ class GenerateAdminClass {
     
         ModelForm::pass_errors_to_form(Webmodel::$model[$this->model_name]);
     
-        ModelForm::set_values_form($post, Webmodel::$model[$this->model_name]->forms, $show_error);
+        ModelForm::set_values_form(Webmodel::$model[$this->model_name]->forms, $post, $show_error);
         
         $fields=$this->arr_fields_edit;
         

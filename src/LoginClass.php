@@ -130,7 +130,7 @@ class LoginClass {
 		if($arr_user[$this->model_login->idmodel]==0)
 		{
 			
-			ModelForm::set_values_form($_POST, $this->model_login->forms, 1);
+			ModelForm::set_values_form($this->model_login->forms, $_POST, 1);
 		
 			$this->model_login->forms[$this->field_password]->std_error= I18n::lang('users', 'user_error_nick_or_pass', 'Wrong user or password');
 		
@@ -209,7 +209,7 @@ class LoginClass {
 				else
 				{
 				
-					ModelForm::set_values_form($_POST, $this->model_login->forms, 1);
+					ModelForm::set_values_form($this->model_login->forms, $_POST, 1);
 				
 					return false;
 				
@@ -219,7 +219,7 @@ class LoginClass {
 			else
 			{
 				
-				ModelForm::set_values_form($_POST, $this->model_login->forms, 1);
+				ModelForm::set_values_form($this->model_login->forms, $_POST, 1);
 				
 				$this->model_login->forms[$this->field_password]->std_error= I18n::lang('users', 'user_error_nick_or_pass', 'Wrong user or password');
 			
@@ -526,7 +526,7 @@ class LoginClass {
 			else
 			{
 			
-				ModelForm::set_values_form($_POST, $this->model_login->forms, 1);
+				ModelForm::set_values_form($this->model_login->forms, $_POST, 1);
 			
 				return false;
 				
@@ -542,7 +542,7 @@ class LoginClass {
 			
 			}
             
-			ModelForm::set_values_form($_POST, $this->model_login->forms, 1);
+			ModelForm::set_values_form($this->model_login->forms, $_POST, 1);
 		
 			return false;
 		
