@@ -39,6 +39,8 @@ class GenerateAdminClass {
     
     public $no_insert=0;
     
+    public $no_delete=0;
+    
     public function __construct($model_name, $url)
     {
     
@@ -73,6 +75,17 @@ class GenerateAdminClass {
         
         settype($_GET['op_admin'], 'integer');
         
+        if($this->no_delete==1)
+        {
+        
+            if($this->list->options_func=='PhangoApp\PhaLibs\SimpleList::BasicOptionsListModel')
+            {
+        
+                $this->list->options_func='PhangoApp\PhaLibs\SimpleList::NoDeleteOptionsListModel';
+            }
+            
+        }
+        
         switch($_GET['op_admin'])
         {
             
@@ -102,31 +115,7 @@ class GenerateAdminClass {
                     
                     echo $this->hierarchy->show($action);
                     
-                    if(Routes::$request_method=='GET')
-                    {
-                    
-                        $this->form(array(), $action);
-                        
-                    }
-                    elseif(Routes::$request_method=='POST')
-                    {
-                    
-                        if(!Webmodel::$model[$this->model_name]->insert($_POST, $this->safe))
-                        {
-                            
-                            $this->form($_POST, $action, 1);
-                        
-                        }
-                        else
-                        {
-                        
-                            View::set_flash($this->text_add_item_success);
-                            
-                            Routes::redirect($this->url);
-                        
-                        }
-                    
-                    }
+                    $this->insert_model($action);
                 }
                 
             break;
@@ -134,83 +123,127 @@ class GenerateAdminClass {
             case 2:
             
                 settype($_GET[Webmodel::$model[$this->model_name]->idmodel], 'integer');
-                
-                $id=$_GET[Webmodel::$model[$this->model_name]->idmodel];
-                
-                $idmodel=Webmodel::$model[$this->model_name]->idmodel;
-                
-                $arr_row=Webmodel::$model[$this->model_name]->select_a_row($id);
-                
-                settype($arr_row[$idmodel], 'integer');
-                
-                if($arr_row[$idmodel]>0)
-                {
-                
-                    $action=Routes::add_get_parameters($this->url, array('op_admin' => 2, $idmodel => $id));
+            
+                $action=Routes::add_get_parameters($this->url, array('op_admin' => 2, Webmodel::$model[$this->model_name]->idmodel => $_GET[Webmodel::$model[$this->model_name]->idmodel]));
                     
-                    $this->hierarchy->update_links($this->url, $action, $this->update_item);
+                $this->hierarchy->update_links($this->url, $action, $this->update_item);
+            
+                echo $this->hierarchy->show($action);
                 
-                    echo $this->hierarchy->show($action);
-                
-                    if(Routes::$request_method=='GET')
-                    {
-                
-                        $this->form($arr_row, $action, 1);
-                        
-                    }
-                    else
-                    if(Routes::$request_method=='POST')
-                    {
-                        Webmodel::$model[$this->model_name]->set_conditions('WHERE '.$idmodel.'='.$id);
-                    
-                        if(!Webmodel::$model[$this->model_name]->update($_POST, $this->safe))
-                        {
-                        
-                            $this->form($arr_row, $action, 1);
-                        
-                        }
-                        else
-                        {
-                        
-                            View::set_flash($this->updated_item);
-                    
-                            Routes::redirect($this->url);
-                        
-                        }
-                    
-                    }
-                    
-                }
+                $this->update_model($action);
             
             break;
             
             case 3:
-                
-                settype($_GET[Webmodel::$model[$this->model_name]->idmodel], 'integer');
-                
-                $id=$_GET[Webmodel::$model[$this->model_name]->idmodel];
-                
-                $idmodel=Webmodel::$model[$this->model_name]->idmodel;
-                
-                Webmodel::$model[$this->model_name]->set_conditions('WHERE '.$idmodel.'='.$id);
-                
-                if(Webmodel::$model[$this->model_name]->delete($_POST, $this->safe))
+            
+                if(!$this->no_delete)
                 {
                 
-                    View::set_flash($this->deleted_item);
+                    settype($_GET[Webmodel::$model[$this->model_name]->idmodel], 'integer');
                     
-                    Routes::redirect($this->url);
+                    $id=$_GET[Webmodel::$model[$this->model_name]->idmodel];
                     
-                }
-                else
-                {
-                
-                    echo '<p>'.$this->deleted_item_error.'</p>';
-                
+                    $idmodel=Webmodel::$model[$this->model_name]->idmodel;
+                    
+                    Webmodel::$model[$this->model_name]->set_conditions('WHERE '.$idmodel.'='.$id);
+                    
+                    if(Webmodel::$model[$this->model_name]->delete($_POST, $this->safe))
+                    {
+                    
+                        View::set_flash($this->deleted_item);
+                        
+                        Routes::redirect($this->url);
+                        
+                    }
+                    else
+                    {
+                    
+                        echo '<p>'.$this->deleted_item_error.'</p>';
+                    
+                    }
                 }
                 
             break;
         
+        }
+    
+    }
+    
+    public function insert_model($action)
+    {
+    
+        if(Routes::$request_method=='GET')
+        {
+        
+            $this->form(array(), $action);
+            
+        }
+        elseif(Routes::$request_method=='POST')
+        {
+        
+            if(!Webmodel::$model[$this->model_name]->insert($_POST, $this->safe))
+            {
+                
+                $this->form($_POST, $action, 1);
+            
+            }
+            else
+            {
+            
+                View::set_flash($this->text_add_item_success);
+                
+                Routes::redirect($this->url);
+            
+            }
+        
+        }
+    
+    }
+    
+    public function update_model($action)
+    {
+    
+        $id=$_GET[Webmodel::$model[$this->model_name]->idmodel];
+        
+        settype($id, 'integer');
+        
+        $idmodel=Webmodel::$model[$this->model_name]->idmodel;
+        
+        $arr_row=Webmodel::$model[$this->model_name]->select_a_row($id);
+        
+        settype($arr_row[$idmodel], 'integer');
+        
+        if($arr_row[$idmodel]>0)
+        {
+        
+            if(Routes::$request_method=='GET')
+            {
+        
+                $this->form($arr_row, $action, 1);
+                
+            }
+            else
+            if(Routes::$request_method=='POST')
+            {
+                Webmodel::$model[$this->model_name]->set_conditions('WHERE '.$idmodel.'='.$id);
+            
+                if(!Webmodel::$model[$this->model_name]->update($_POST, $this->safe))
+                {
+                
+                    $this->form($_POST, $action, 1);
+                
+                }
+                else
+                {
+                
+                    View::set_flash($this->updated_item);
+            
+                    Routes::redirect($this->url);
+                
+                }
+            
+            }
+            
         }
     
     }

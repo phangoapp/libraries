@@ -315,6 +315,19 @@ class SimpleList
         return $arr_options;
 
     }
+    
+    static public function NoDeleteOptionsListModel($url_options, $model_name, $id)
+    {
+
+        
+
+        $url_options_edit=Routes::add_get_parameters($url_options, array('op_admin' =>2, Webmodel::$model[$model_name]->idmodel => $id));
+
+        $arr_options=array('<a href="'.$url_options_edit.'">'.I18n::lang('common', 'edit', 'Edit').'</a>');
+
+        return $arr_options;
+
+    }
 
 
 }
