@@ -500,38 +500,55 @@ class LoginClass {
 		
 		// && $no_user==0
 		
-		if(ModelForm::check_form($this->model_login->forms, $post))
-		{
+		/*if(ModelForm::check_form($this->model_login->forms, $post))
+		{*/
             
 			/*if($_POST['repeat_password']==$post[$this->field_password] && $check_captcha==1 && $no_user==0)
 			{*/
 			
-			$this->model_login->reset_require();
+			if($no_user===0)
+            {
 			
-			foreach($this->arr_user_insert as $field_require)
-			{
-			
-				if(isset($this->model_login->components[$field_require]))
-				{
-					$this->model_login->components[$field_require]->required=1;
-				}
-			}
-			
-			if($this->model_login->insert($post))
-			{
+                $this->model_login->reset_require();
                 
-				return true;
-			
-			}
-			else
-			{
-			
-				ModelForm::set_values_form($this->model_login->forms, $_POST, 1);
-			
-				return false;
-				
-			}
-		}
+                foreach($this->arr_user_insert as $field_require)
+                {
+                
+                    if(isset($this->model_login->components[$field_require]))
+                    {
+                        $this->model_login->components[$field_require]->required=1;
+                    }
+                }
+                
+                if($this->model_login->insert($post))
+                {
+                    
+                    return true;
+                
+                }
+                else
+                {
+                    
+                    
+                    ModelForm::set_values_form($this->model_login->forms, $_POST, 1);
+                
+                    return false;
+                    
+                }
+            }
+            else
+            {
+            
+                $this->model_login->forms[$this->field_user]->std_error= I18n::lang('users', 'user_or_email_exists', 'User or email exists');
+                
+                
+                ModelForm::set_values_form($this->model_login->forms, $_POST, 1);
+        
+                return false;
+            
+            }
+            
+		/*}
 		else
 		{
 		
@@ -546,7 +563,7 @@ class LoginClass {
 		
 			return false;
 		
-		}
+		}*/
 	
 	}
 	

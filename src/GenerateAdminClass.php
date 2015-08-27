@@ -9,6 +9,7 @@ use PhangoApp\PhaModels\ModelForm;
 use PhangoApp\PhaUtils\Utils;
 use PhangoApp\PhaRouter\Routes;
 use PhangoApp\PhaI18n\I18n;
+use PhangoApp\PhaLibs\HierarchyLinks;
 
 class GenerateAdminClass {
 
@@ -30,6 +31,12 @@ class GenerateAdminClass {
     
     public $safe=0;
     
+    public $arr_links=array();
+    
+    public $hierarchy;
+    
+    public $text_add_item='';
+    
     public function __construct($model_name, $url)
     {
     
@@ -38,6 +45,22 @@ class GenerateAdminClass {
         $this->list=new SimpleList($model_name);
         
         $this->set_url_admin($url);
+        
+        $this->arr_links['']=array($url => I18n::lang('common', 'home', 'Home'));
+        
+        $this->hierarchy=new HierarchyLinks($this->arr_links);
+        
+        $this->text_add_item=I18n::lang('common', 'add_new_item', 'Add new item');
+        
+        $this->text_add_item_success=I18n::lang('common', 'add_new_item_success', 'Added new item succesfully');
+        
+        $this->update_item=I18n::lang('common', 'update_item', 'Update item');
+        
+        $this->updated_item=I18n::lang('common', 'item_updated', 'Item update succesfully');
+        
+        $this->deleted_item=I18n::lang('common', 'item_deleted', 'Item deleted succesfully');
+        
+        $this->deleted_item_error=I18n::lang('common', 'item_deleted_error', 'Error, cannot delete the field. Please, check for errors');
         
         Webmodel::$model[$this->model_name]->create_forms($this->arr_fields_edit);
     
@@ -54,6 +77,8 @@ class GenerateAdminClass {
             //List
             
             default:
+            
+                echo $this->hierarchy->show($this->url);
                 
                 //$this->list->show();
                 echo View::load_view(array($this), 'admin/adminlist');
@@ -63,34 +88,44 @@ class GenerateAdminClass {
             //Create new item
             
             case 1:
-            
-                $action=Routes::add_get_parameters($this->url, array('op_admin' => 2));
-            
-                $this->form(array(), Routes::add_get_parameters($this->url, array('op_admin' => 2)));
+                
+                $action=Routes::add_get_parameters($this->url, array('op_admin' => 1));
+                    
+                //$this->arr_links[$this->url]=array($action => I18n::lang('common', 'add_new_item', 'Add new item'));
+                
+                $this->hierarchy->update_links($this->url, $action, $this->text_add_item);
+                
+                echo $this->hierarchy->show($action);
+                
+                if(Routes::$request_method=='GET')
+                {
+                
+                    $this->form(array(), $action);
+                    
+                }
+                elseif(Routes::$request_method=='POST')
+                {
+                
+                    if(!Webmodel::$model[$this->model_name]->insert($_POST, $this->safe))
+                    {
+                        
+                        $this->form($_POST, $action, 1);
+                    
+                    }
+                    else
+                    {
+                    
+                        View::set_flash($this->text_add_item_success);
+                        
+                        Routes::redirect($this->url);
+                    
+                    }
+                
+                }
             
             break;
-            
+
             case 2:
-            
-                if(!Webmodel::$model[$this->model_name]->insert($_POST, $this->safe))
-                {
-                    
-                    $this->form($_POST, Routes::add_get_parameters($this->url, array('op_admin' => 2)), 1);
-                
-                }
-                else
-                {
-                
-                    View::set_flash(I18n::lang('common', 'item_insert', 'Item inserted succesfully'));
-                    
-                    Routes::redirect($this->url);
-                
-                }
-               
-            
-            break;
-            
-            case 3:
             
                 settype($_GET[Webmodel::$model[$this->model_name]->idmodel], 'integer');
                 
@@ -105,10 +140,16 @@ class GenerateAdminClass {
                 if($arr_row[$idmodel]>0)
                 {
                 
+                    $action=Routes::add_get_parameters($this->url, array('op_admin' => 2, $idmodel => $id));
+                    
+                    $this->hierarchy->update_links($this->url, $action, $this->update_item);
+                
+                    echo $this->hierarchy->show($action);
+                
                     if(Routes::$request_method=='GET')
                     {
                 
-                        $this->form($arr_row, Routes::add_get_parameters($this->url, array('op_admin' => 3, $idmodel => $id)), 1);
+                        $this->form($arr_row, $action, 1);
                         
                     }
                     else
@@ -119,13 +160,13 @@ class GenerateAdminClass {
                         if(!Webmodel::$model[$this->model_name]->update($_POST, $this->safe))
                         {
                         
-                            $this->form($arr_row, Routes::add_get_parameters($this->url, array('op_admin' => 3, $idmodel => $id)), 1);
+                            $this->form($arr_row, $action, 1);
                         
                         }
                         else
                         {
                         
-                            View::set_flash(I18n::lang('common', 'item_updated', 'Item update succesfully'));
+                            View::set_flash($this->updated_item);
                     
                             Routes::redirect($this->url);
                         
@@ -137,7 +178,7 @@ class GenerateAdminClass {
             
             break;
             
-            case 4:
+            case 3:
                 
                 settype($_GET[Webmodel::$model[$this->model_name]->idmodel], 'integer');
                 
@@ -150,7 +191,7 @@ class GenerateAdminClass {
                 if(Webmodel::$model[$this->model_name]->delete($_POST, $this->safe))
                 {
                 
-                    View::set_flash(I18n::lang('common', 'item_deleted', 'Item deleted succesfully'));
+                    View::set_flash($this->deleted_item);
                     
                     Routes::redirect($this->url);
                     
@@ -158,7 +199,7 @@ class GenerateAdminClass {
                 else
                 {
                 
-                    echo '<p>'.I18n::lang('common', 'item_deleted_error', 'Error, cannot delete the field. Please, check for errors').'</p>';
+                    echo '<p>'.$this->deleted_item_error.'</p>';
                 
                 }
                 
@@ -171,7 +212,7 @@ class GenerateAdminClass {
     public function form($post, $action, $show_error=0)
     {
     
-        ModelForm::pass_errors_to_form(Webmodel::$model[$this->model_name]);
+        //ModelForm::pass_errors_to_form(Webmodel::$model[$this->model_name]);
     
         ModelForm::set_values_form(Webmodel::$model[$this->model_name]->forms, $post, $show_error);
         

@@ -24,6 +24,7 @@ class SimpleList
 	public $arr_fields=array();
 	public $arr_fields_showed=array();
 	public $arr_fields_no_showed=array();
+	public $arr_fields_no_search=array();
 	public $arr_extra_fields=array();
 	public $arr_extra_fields_func=array();
 	public $arr_cell_sizes=array();
@@ -43,6 +44,7 @@ class SimpleList
 	public $variable_page='begin_page';
 	public $yes_search=1;
 	public $order_field='';
+	public $order=0;
 	
 	function __construct($model_name)
 	{
@@ -78,6 +80,7 @@ class SimpleList
         {
         
             $this->arr_fields[]=Webmodel::$model[$this->model_name]->idmodel;
+            
         
         }
         
@@ -127,15 +130,6 @@ class SimpleList
 		}
 		
 		SimpleTable::top_table_config($arr_fields_show, $this->arr_cell_sizes);
-		
-		if($this->yes_search==1)
-		{
-		
-            $this->search_by_url();
-            
-            $this->change_order_by_url();
-            
-        }
 		
 		Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
 		
@@ -213,7 +207,14 @@ class SimpleList
     
         //Get: by/field/order/0
         
-        settype($_GET['order'], 'integer');
+        //settype($_GET['order'], 'integer');
+        
+        if(!isset($_GET['order']))
+        {
+            
+            $_GET['order']=$this->order;
+        
+        }
         
         $arr_order[$_GET['order']]='ASC';
         $arr_order[0]='ASC';
@@ -222,14 +223,14 @@ class SimpleList
         if(isset($_GET['field_search']))
         {
         
-            $_GET['field_search']=Utils::slugify($_GET['field_search']);
-        
+            $_GET['field_search']=Utils::slugify($_GET['field_search'], 1);
+            
             if(isset(Webmodel::$model[$this->model_name]->components[$_GET['field_search']]))
             {
             
                 $this->order_by='order by `'.$_GET['field_search'].'` '.$arr_order[$_GET['order']];
                 
-                $this->url_options=Routes::add_get_parameters($this->url_options, array('field_search' => $_GET['field_search'], 'order' => $_GET['order']));
+                //$this->url_options=Routes::add_get_parameters($this->url_options, array('field_search' => $_GET['field_search'], 'order' => $_GET['order']));
             
             }
         
@@ -239,21 +240,50 @@ class SimpleList
     
     public function search_by_url()
     {
+        
+        if(!isset($_GET['field_search']))
+        {
+        
+            $_GET['field_search']=$this->order_field;
+        
+        }
+    
         if(isset($_GET['search']) && isset($_GET['field_search']))
         {
             
-            $_GET['field_search']=Utils::slugify($_GET['field_search']);
+            $_GET['field_search']=Utils::slugify($_GET['field_search'], 1);
             
             if(isset(Webmodel::$model[$this->model_name]->components[$_GET['field_search']]))
             {
             
-                $_GET['search']=Webmodel::$model[$this->model_name]->components[$_GET['field_search']]->check($_GET['search']);
-            
-                $this->where_sql='WHERE `'.$_GET['field_search'].'` LIKE "%'.$_GET['search'].'%"';
+                //$_GET['search']=trim(Webmodel::$model[$this->model_name]->components[$_GET['field_search']]->check($_GET['search']));
+                $_GET['search']=trim(Utils::form_text($_GET['search']));
                 
-                $this->url_options=Routes::add_get_parameters($this->url_options, array('field_search' => $_GET['field_search'], 'search' => $_GET['search'], 'order' => $_GET['order']));
+                if($_GET['search']!=false)
+                {
+            
+                    $this->where_sql='WHERE `'.$_GET['field_search'].'` LIKE "%'.$_GET['search'].'%"';
+                    
+                }
             
             }
+        }
+        else
+        {
+        
+            $_GET['search']='';
+            
+        }
+        
+        $this->change_order_by_url();
+        
+        $this->url_options=Routes::add_get_parameters($this->url_options, array('field_search' => $_GET['field_search'], 'order' => $_GET['order']));
+                
+        if($_GET['search']!='')
+        {
+        
+            $this->url_options=Routes::add_get_parameters($this->url_options, array('search' => $_GET['search']));
+        
         }
     
     }
@@ -277,8 +307,8 @@ class SimpleList
         </script>
         <?php
 
-        $url_options_edit=Routes::add_get_parameters($url_options, array('op_admin' =>3, Webmodel::$model[$model_name]->idmodel => $id));
-        $url_options_delete=Routes::add_get_parameters($url_options, array('op_admin' =>4, Webmodel::$model[$model_name]->idmodel => $id));
+        $url_options_edit=Routes::add_get_parameters($url_options, array('op_admin' =>2, Webmodel::$model[$model_name]->idmodel => $id));
+        $url_options_delete=Routes::add_get_parameters($url_options, array('op_admin' =>3, Webmodel::$model[$model_name]->idmodel => $id));
 
         $arr_options=array('<a href="'.$url_options_edit.'">'.I18n::lang('common', 'edit', 'Edit').'</a>', '<a href="'.$url_options_delete.'" onclick="javascript: if(warning()==false) { return false; }">'.I18n::lang('common', 'delete', 'Delete').'</a>');
 
