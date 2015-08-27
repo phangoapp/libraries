@@ -120,7 +120,7 @@ class SimpleList
 		
 		if($this->yes_options)
 		{
-		
+            
 			$arr_fields_show[]=I18n::lang('common', 'options', 'Options');
 			$options_method='yes_add_options';
 		
@@ -277,8 +277,8 @@ class SimpleList
         </script>
         <?php
 
-        $url_options_edit=Routes::add_get_parameters($url_options, array('op_edit' =>1, Webmodel::$model[$model_name]->idmodel => $id));
-        $url_options_delete=Routes::add_get_parameters($url_options, array('op_edit' =>2, Webmodel::$model[$model_name]->idmodel => $id));
+        $url_options_edit=Routes::add_get_parameters($url_options, array('op_admin' =>3, Webmodel::$model[$model_name]->idmodel => $id));
+        $url_options_delete=Routes::add_get_parameters($url_options, array('op_admin' =>4, Webmodel::$model[$model_name]->idmodel => $id));
 
         $arr_options=array('<a href="'.$url_options_edit.'">'.I18n::lang('common', 'edit', 'Edit').'</a>', '<a href="'.$url_options_delete.'" onclick="javascript: if(warning()==false) { return false; }">'.I18n::lang('common', 'delete', 'Delete').'</a>');
 
