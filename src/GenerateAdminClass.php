@@ -66,8 +66,11 @@ class GenerateAdminClass {
         
         $this->deleted_item_error=I18n::lang('common', 'item_deleted_error', 'Error, cannot delete the field. Please, check for errors');
         
-        Webmodel::$model[$this->model_name]->create_forms($this->arr_fields_edit);
-    
+        if(count(Webmodel::$model[$this->model_name]->forms)==0)
+        {
+        
+            Webmodel::$model[$this->model_name]->create_forms($this->arr_fields_edit);
+        }
     }
     
     public function show()
@@ -183,6 +186,7 @@ class GenerateAdminClass {
         
             if(!Webmodel::$model[$this->model_name]->insert($_POST, $this->safe))
             {
+                echo '<p><span class="error">'.Webmodel::$model[$this->model_name]->std_error.'</span></p>';
                 
                 $this->form($_POST, $action, 1);
             
@@ -226,9 +230,11 @@ class GenerateAdminClass {
             if(Routes::$request_method=='POST')
             {
                 Webmodel::$model[$this->model_name]->set_conditions('WHERE '.$idmodel.'='.$id);
-            
+                
                 if(!Webmodel::$model[$this->model_name]->update($_POST, $this->safe))
                 {
+                
+                    echo '<p><span class="error">'.Webmodel::$model[$this->model_name]->std_error.'</span></p>';
                 
                     $this->form($_POST, $action, 1);
                 

@@ -24,7 +24,7 @@ class SimpleList
 	public $arr_fields=array();
 	public $arr_fields_showed=array();
 	public $arr_fields_no_showed=array();
-	public $arr_fields_no_search=array();
+	public $arr_fields_search=array();
 	public $arr_extra_fields=array();
 	public $arr_extra_fields_func=array();
 	public $arr_cell_sizes=array();
@@ -59,8 +59,18 @@ class SimpleList
 			Webmodel::$model[$this->model_name]->create_forms();
 		}
 		
-		$this->order_field='';
+		$this->arr_fields_search=$this->arr_fields_showed;
 		
+		$this->order_field=Webmodel::$model[$this->model_name]->idmodel;
+		
+	}
+	
+	public function set_fields_showed($arr_fields=array())
+	{
+	
+        $this->arr_fields_showed=$arr_fields;
+        $this->arr_fields_search=$arr_fields;
+	
 	}
 	
 	public function load_fields_showed($arr_fields_no_showed=array())
@@ -106,81 +116,121 @@ class SimpleList
 	
 	}
 	
+	public function obtain_list()
+	{
+	
+        Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
+            
+        Webmodel::$model[$this->model_name]->set_order($this->order_by);
+        
+        Webmodel::$model[$this->model_name]->set_limit('limit '.$this->begin_page.', '.$this->num_by_page);
+        
+        return Webmodel::$model[$this->model_name]->select($this->arr_fields, $this->raw_query);
+	
+	}
+	
+	public function obtain_row($arr_row, $options_method)
+	{
+	
+        $arr_row_final=array();
+            
+        foreach($this->arr_fields_showed as $field)
+        {
+        
+            $arr_row_final[$field]=webmodel::$model[$this->model_name]->components[$field]->show_formatted($arr_row[$field],  $arr_row);
+        
+        }
+        
+        //extra arr_extra_fields
+        
+        foreach($this->arr_extra_fields_func as $name_func)
+        {
+            
+            $arr_row_final[]=$name_func($arr_row);
+            
+        }
+        
+        $arr_row_final=$this->$options_method($arr_row_final, $arr_row, $this->options_func, $this->url_options, $this->model_name, webmodel::$model[$this->model_name]->idmodel, $this->separator_element, $this->options_func_extra_args);
+        
+        return $arr_row_final;
+	
+	}
+	
 	public function show()
 	{
-		$arr_fields_show=$this->load_fields_showed($this->arr_fields_no_showed);
-		
-		//Extra fields name_field
-		
-		foreach($this->arr_extra_fields as $extra_key => $name_field)
-		{
-		
-			$arr_fields_show[$extra_key]=$name_field;
-		
-		}
-		
-		$options_method='no_add_options';
-		
-		if($this->yes_options)
-		{
+        settype($_GET['ajax'], 'integer');
+        
+        $arr_fields_show=$this->load_fields_showed($this->arr_fields_no_showed);
             
-			$arr_fields_show[]=I18n::lang('common', 'options', 'Options');
-			$options_method='yes_add_options';
-		
-		}
-		
-		SimpleTable::top_table_config($arr_fields_show, $this->arr_cell_sizes);
-		
-		Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
-		
-		Webmodel::$model[$this->model_name]->set_order($this->order_by);
-		
-		Webmodel::$model[$this->model_name]->set_limit('limit '.$this->begin_page.', '.$this->num_by_page);
-		
-		$query=Webmodel::$model[$this->model_name]->select($this->arr_fields, $this->raw_query);
-		
-		while($arr_row=Webmodel::$model[$this->model_name]->fetch_array($query))
-		{
-		
-			$arr_row_final=array();
-		
-			foreach($this->arr_fields_showed as $field)
-			{
-			
-				$arr_row_final[$field]=Webmodel::$model[$this->model_name]->components[$field]->show_formatted($arr_row[$field],  $arr_row[Webmodel::$model[$this->model_name]->idmodel]);
-			
-			}
-			
-			//Extra arr_extra_fields
-			
-			foreach($this->arr_extra_fields_func as $name_func)
-			{
-				
-				$arr_row_final[]=$name_func($arr_row);
-				
-			}
-			
-			$arr_row_final=$this->$options_method($arr_row_final, $arr_row, $this->options_func, $this->url_options, $this->model_name, Webmodel::$model[$this->model_name]->idmodel, $this->separator_element, $this->options_func_extra_args);
-		
-			SimpleTable::middle_table_config($arr_row_final, $cell_sizes=array());
-		
-		}
-		
-		SimpleTable::bottom_table_config();
-		
-		if($this->yes_pagination==1)
-		{
-		
-			//Utils::load_libraries(array('pages'));
-			
-			Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
-			
-			$total_elements=Webmodel::$model[$this->model_name]->select_count();
-			
-			echo '<p>'.I18n::lang('common', 'pages', 'Pages')
-			.': '.Pages::show( $this->begin_page, $total_elements, $this->num_by_page, $this->url_options ,$this->initial_num_pages, $this->variable_page, $label='', $func_jscript='').'</p>';
-		
-		}
+        //Extra fields name_field
+        
+        foreach($this->arr_extra_fields as $extra_key => $name_field)
+        {
+        
+            $arr_fields_show[$extra_key]=$name_field;
+        
+        }
+        
+        $options_method='no_add_options';
+        
+        if($this->yes_options)
+        {
+            
+            $arr_fields_show[]=I18n::lang('common', 'options', 'Options');
+            $options_method='yes_add_options';
+        
+        }
+        
+        if($_GET['ajax']==0)
+        {
+            
+            SimpleTable::top_table_config($arr_fields_show, $this->arr_cell_sizes);
+            
+            $query=$this->obtain_list();
+            
+            while($arr_row=Webmodel::$model[$this->model_name]->fetch_array($query))
+            {
+            
+                $arr_row_final=$this->obtain_row($arr_row, $options_method);
+            
+                SimpleTable::middle_table_config($arr_row_final, $cell_sizes=array());
+            
+            }
+            
+            SimpleTable::bottom_table_config();
+            
+            if($this->yes_pagination==1)
+            {
+            
+                //Utils::load_libraries(array('pages'));
+                
+                Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
+                
+                $total_elements=Webmodel::$model[$this->model_name]->select_count();
+                
+                echo '<p>'.I18n::lang('common', 'pages', 'Pages')
+                .': '.Pages::show( $this->begin_page, $total_elements, $this->num_by_page, $this->url_options ,$this->initial_num_pages, $this->variable_page, $label='', $func_jscript='').'</p>';
+            
+            }
+            
+        }
+        else
+        {
+        
+            //Obtain table ajax
+            $query=$this->obtain_list();
+            
+            while($arr_row=Webmodel::$model[$this->model_name]->fetch_array($query))
+            {
+            
+                $arr_row_final[]=$this->obtain_row($arr_row, $options_method);
+            
+            
+            }
+            
+            return json_encode($arr_row_final);
+        
+        }
 	
 	}
 	
@@ -222,7 +272,7 @@ class SimpleList
         
         if(isset($_GET['field_search']))
         {
-        
+            
             $_GET['field_search']=Utils::slugify($_GET['field_search'], 1);
             
             if(isset(Webmodel::$model[$this->model_name]->components[$_GET['field_search']]))
@@ -245,7 +295,7 @@ class SimpleList
         {
         
             $_GET['field_search']=$this->order_field;
-        
+            
         }
     
         if(isset($_GET['search']) && isset($_GET['field_search']))
