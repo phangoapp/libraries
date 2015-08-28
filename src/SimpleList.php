@@ -15,6 +15,7 @@ use PhangoApp\PhaUtils\Utils;
 use PhangoApp\PhaModels\Webmodel;
 use PhangoApp\PhaI18n\I18n;
 use PhangoApp\PhaRouter\Routes;
+use PhangoApp\PhaView\View;
 
 class SimpleList
 {
@@ -199,20 +200,6 @@ class SimpleList
             
             SimpleTable::bottom_table_config();
             
-            if($this->yes_pagination==1)
-            {
-            
-                //Utils::load_libraries(array('pages'));
-                
-                Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
-                
-                $total_elements=Webmodel::$model[$this->model_name]->select_count();
-                
-                echo '<p>'.I18n::lang('common', 'pages', 'Pages')
-                .': '.Pages::show( $this->begin_page, $total_elements, $this->num_by_page, $this->url_options ,$this->initial_num_pages, $this->variable_page, $label='', $func_jscript='').'</p>';
-            
-            }
-            
         }
         else
         {
@@ -228,7 +215,21 @@ class SimpleList
             
             }
             
-            return json_encode($arr_row_final);
+            echo json_encode($arr_row_final);
+        
+        }
+        
+        if($this->yes_pagination==1)
+        {
+        
+            //Utils::load_libraries(array('pages'));
+            
+            Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
+            
+            $total_elements=Webmodel::$model[$this->model_name]->select_count();
+            
+            echo '<p>'.I18n::lang('common', 'pages', 'Pages')
+            .': '.Pages::show( $this->begin_page, $total_elements, $this->num_by_page, $this->url_options ,$this->initial_num_pages, $this->variable_page, $label='', $func_jscript='').'</p>';
         
         }
 	
@@ -341,6 +342,8 @@ class SimpleList
 	static public function BasicOptionsListModel($url_options, $model_name, $id)
     {
 
+        ob_start();
+    
         ?>
         <script language="javascript">
             function warning()
@@ -356,6 +359,10 @@ class SimpleList
             }
         </script>
         <?php
+        
+        View::$js=ob_get_contents();
+        
+        ob_end_clean();
 
         $url_options_edit=Routes::add_get_parameters($url_options, array('op_admin' =>2, Webmodel::$model[$model_name]->idmodel => $id));
         $url_options_delete=Routes::add_get_parameters($url_options, array('op_admin' =>3, Webmodel::$model[$model_name]->idmodel => $id));
