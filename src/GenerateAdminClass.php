@@ -58,13 +58,13 @@ class GenerateAdminClass {
         
         $this->text_add_item_success=I18n::lang('common', 'add_new_item_success', 'Added new item succesfully');
         
-        $this->update_item=I18n::lang('common', 'update_item', 'Update item');
+        $this->text_update_item=I18n::lang('common', 'update_item', 'Update item');
         
-        $this->updated_item=I18n::lang('common', 'item_updated', 'Item update succesfully');
+        $this->text_updated_item=I18n::lang('common', 'item_updated', 'Item update succesfully');
         
-        $this->deleted_item=I18n::lang('common', 'item_deleted', 'Item deleted succesfully');
+        $this->text_deleted_item=I18n::lang('common', 'item_deleted', 'Item deleted succesfully');
         
-        $this->deleted_item_error=I18n::lang('common', 'item_deleted_error', 'Error, cannot delete the field. Please, check for errors');
+        $this->text_deleted_item_error=I18n::lang('common', 'item_deleted_error', 'Error, cannot delete the field. Please, check for errors');
         
         if(count(Webmodel::$model[$this->model_name]->forms)==0)
         {
@@ -118,6 +118,8 @@ class GenerateAdminClass {
                     
                     echo $this->hierarchy->show($action);
                     
+                    echo '<h2>'.$this->text_add_item.'</h2>';
+                    
                     $this->insert_model($action);
                 }
                 
@@ -129,9 +131,11 @@ class GenerateAdminClass {
             
                 $action=Routes::add_get_parameters($this->url, array('op_admin' => 2, Webmodel::$model[$this->model_name]->idmodel => $_GET[Webmodel::$model[$this->model_name]->idmodel]));
                     
-                $this->hierarchy->update_links($this->url, $action, $this->update_item);
+                $this->hierarchy->update_links($this->url, $action, $this->text_update_item);
             
                 echo $this->hierarchy->show($action);
+                
+                echo '<h2>'.$this->text_update_item.'</h2>';
                 
                 $this->update_model($action);
             
@@ -153,7 +157,7 @@ class GenerateAdminClass {
                     if(Webmodel::$model[$this->model_name]->delete($_POST, $this->safe))
                     {
                     
-                        View::set_flash($this->deleted_item);
+                        View::set_flash($this->text_deleted_item);
                         
                         Routes::redirect($this->url);
                         
@@ -161,7 +165,7 @@ class GenerateAdminClass {
                     else
                     {
                     
-                        echo '<p>'.$this->deleted_item_error.'</p>';
+                        echo '<p>'.$this->text_deleted_item_error.'</p>';
                     
                     }
                 }
@@ -242,7 +246,7 @@ class GenerateAdminClass {
                 else
                 {
                 
-                    View::set_flash($this->updated_item);
+                    View::set_flash($this->text_updated_item);
             
                     Routes::redirect($this->url);
                 

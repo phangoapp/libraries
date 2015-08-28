@@ -182,8 +182,8 @@ class SimpleList
         
         }
         
-        if($_GET['ajax']==0)
-        {
+        /*if($_GET['ajax']==0)
+        {*/
             
             SimpleTable::top_table_config($arr_fields_show, $this->arr_cell_sizes);
             
@@ -200,7 +200,7 @@ class SimpleList
             
             SimpleTable::bottom_table_config();
             
-        }
+        /*}
         else
         {
         
@@ -217,7 +217,7 @@ class SimpleList
             
             echo json_encode($arr_row_final);
         
-        }
+        }*/
         
         if($this->yes_pagination==1)
         {
@@ -360,7 +360,7 @@ class SimpleList
         </script>
         <?php
         
-        View::$js=ob_get_contents();
+        View::$header[]=ob_get_contents();
         
         ob_end_clean();
 
