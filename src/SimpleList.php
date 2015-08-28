@@ -43,26 +43,28 @@ class SimpleList
 	public $initial_num_pages=20;
 	public $order_by='';
 	public $variable_page='begin_page';
-	public $yes_search=1;
+	public $yes_search=0;
 	public $order_field='';
 	public $order=0;
 	
-	function __construct($model_name)
+	function __construct($model)
 	{
 		settype($_GET['begin_page'], 'integer');
 		
-		$this->model_name=$model_name;
+		$this->model=&$model;
+		
+		$this->model_name=$this->model->name;
 		
 		$this->begin_page=$_GET['begin_page'];
 		
-		if( count(Webmodel::$model[$this->model_name]->forms)==0)
+		if( count($this->model->forms)==0)
 		{	
-			Webmodel::$model[$this->model_name]->create_forms();
+			$this->model->create_forms();
 		}
 		
 		$this->arr_fields_search=$this->arr_fields_showed;
 		
-		$this->order_field=Webmodel::$model[$this->model_name]->idmodel;
+		$this->order_field=$this->model->idmodel;
 		
 	}
 	
@@ -82,15 +84,15 @@ class SimpleList
         if(count($this->arr_fields)==0)
         {
             
-            $this->arr_fields=array_keys(Webmodel::$model[$this->model_name]->components);
+            $this->arr_fields=array_keys($this->model->components);
         
         }
         
         
-        if(!in_array(Webmodel::$model[$this->model_name]->idmodel, $this->arr_fields))
+        if(!in_array($this->model->idmodel, $this->arr_fields))
         {
         
-            $this->arr_fields[]=Webmodel::$model[$this->model_name]->idmodel;
+            $this->arr_fields[]=$this->model->idmodel;
             
         
         }
@@ -109,7 +111,7 @@ class SimpleList
         foreach($arr_fields_showed as $field)
         {
         
-            $arr_fields_show[$field]=Webmodel::$model[$this->model_name]->forms[$field]->label;
+            $arr_fields_show[$field]=$this->model->forms[$field]->label;
         
         }
         
@@ -120,13 +122,13 @@ class SimpleList
 	public function obtain_list()
 	{
 	
-        Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
+        $this->model->set_conditions($this->where_sql);
             
-        Webmodel::$model[$this->model_name]->set_order($this->order_by);
+        $this->model->set_order($this->order_by);
         
-        Webmodel::$model[$this->model_name]->set_limit('limit '.$this->begin_page.', '.$this->num_by_page);
+        $this->model->set_limit('limit '.$this->begin_page.', '.$this->num_by_page);
         
-        return Webmodel::$model[$this->model_name]->select($this->arr_fields, $this->raw_query);
+        return $this->model->select($this->arr_fields, $this->raw_query);
 	
 	}
 	
@@ -189,7 +191,7 @@ class SimpleList
             
             $query=$this->obtain_list();
             
-            while($arr_row=Webmodel::$model[$this->model_name]->fetch_array($query))
+            while($arr_row=$this->model->fetch_array($query))
             {
             
                 $arr_row_final=$this->obtain_row($arr_row, $options_method);
@@ -207,7 +209,7 @@ class SimpleList
             //Obtain table ajax
             $query=$this->obtain_list();
             
-            while($arr_row=Webmodel::$model[$this->model_name]->fetch_array($query))
+            while($arr_row=$this->model->fetch_array($query))
             {
             
                 $arr_row_final[]=$this->obtain_row($arr_row, $options_method);
@@ -224,9 +226,9 @@ class SimpleList
         
             //Utils::load_libraries(array('pages'));
             
-            Webmodel::$model[$this->model_name]->set_conditions($this->where_sql);
+            $this->model->set_conditions($this->where_sql);
             
-            $total_elements=Webmodel::$model[$this->model_name]->select_count();
+            $total_elements=$this->model->select_count();
             
             echo '<p>'.I18n::lang('common', 'pages', 'Pages')
             .': '.Pages::show( $this->begin_page, $total_elements, $this->num_by_page, $this->url_options ,$this->initial_num_pages, $this->variable_page, $label='', $func_jscript='').'</p>';
@@ -276,7 +278,7 @@ class SimpleList
             
             $_GET['field_search']=Utils::slugify($_GET['field_search'], 1);
             
-            if(isset(Webmodel::$model[$this->model_name]->components[$_GET['field_search']]))
+            if(isset($this->model->components[$_GET['field_search']]))
             {
             
                 $this->order_by='order by `'.$_GET['field_search'].'` '.$arr_order[$_GET['order']];
@@ -304,10 +306,10 @@ class SimpleList
             
             $_GET['field_search']=Utils::slugify($_GET['field_search'], 1);
             
-            if(isset(Webmodel::$model[$this->model_name]->components[$_GET['field_search']]))
+            if(isset($this->model->components[$_GET['field_search']]))
             {
             
-                //$_GET['search']=trim(Webmodel::$model[$this->model_name]->components[$_GET['field_search']]->check($_GET['search']));
+                //$_GET['search']=trim($this->model->components[$_GET['field_search']]->check($_GET['search']));
                 $_GET['search']=trim(Utils::form_text($_GET['search']));
                 
                 if($_GET['search']!=false)
@@ -342,27 +344,30 @@ class SimpleList
 	static public function BasicOptionsListModel($url_options, $model_name, $id)
     {
 
-        ob_start();
-    
-        ?>
-        <script language="javascript">
-            function warning()
-            {
-                if(confirm('<?php echo I18n::lang('common', 'delete_model', 'Delete element'); ?>'))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        </script>
-        <?php
+        if(!isset(View::$header['delete_model']))
+        {
+            ob_start();
         
-        View::$header[]=ob_get_contents();
-        
-        ob_end_clean();
+            ?>
+            <script language="javascript">
+                function warning()
+                {
+                    if(confirm('<?php echo I18n::lang('common', 'delete_model', 'Delete element'); ?>'))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            </script>
+            <?php
+            
+            View::$header['delete_model']=ob_get_contents();
+            
+            ob_end_clean();
+        }
 
         $url_options_edit=Routes::add_get_parameters($url_options, array('op_admin' =>2, Webmodel::$model[$model_name]->idmodel => $id));
         $url_options_delete=Routes::add_get_parameters($url_options, array('op_admin' =>3, Webmodel::$model[$model_name]->idmodel => $id));

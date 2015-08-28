@@ -23,8 +23,6 @@ class GenerateAdminClass {
     
     public $arr_fields_edit=array();
     
-    public $yes_search=1;
-    
     public $enctype='';
     
     public $url='';
@@ -41,12 +39,14 @@ class GenerateAdminClass {
     
     public $no_delete=0;
     
-    public function __construct($model_name, $url)
+    public function __construct($model, $url)
     {
     
-        $this->model_name=$model_name;
+        $this->model=&$model;
+    
+        $this->model_name=$this->model->name;
         
-        $this->list=new SimpleList($model_name);
+        $this->list=new SimpleList($this->model);
         
         $this->set_url_admin($url);
         
@@ -66,10 +66,10 @@ class GenerateAdminClass {
         
         $this->text_deleted_item_error=I18n::lang('common', 'item_deleted_error', 'Error, cannot delete the field. Please, check for errors');
         
-        if(count(Webmodel::$model[$this->model_name]->forms)==0)
+        if(count($this->model->forms)==0)
         {
         
-            Webmodel::$model[$this->model_name]->create_forms($this->arr_fields_edit);
+            $this->model->create_forms($this->arr_fields_edit);
         }
     }
     
@@ -127,9 +127,9 @@ class GenerateAdminClass {
 
             case 2:
             
-                settype($_GET[Webmodel::$model[$this->model_name]->idmodel], 'integer');
+                settype($_GET[$this->model->idmodel], 'integer');
             
-                $action=Routes::add_get_parameters($this->url, array('op_admin' => 2, Webmodel::$model[$this->model_name]->idmodel => $_GET[Webmodel::$model[$this->model_name]->idmodel]));
+                $action=Routes::add_get_parameters($this->url, array('op_admin' => 2, $this->model->idmodel => $_GET[$this->model->idmodel]));
                     
                 $this->hierarchy->update_links($this->url, $action, $this->text_update_item);
             
@@ -146,15 +146,15 @@ class GenerateAdminClass {
                 if(!$this->no_delete)
                 {
                 
-                    settype($_GET[Webmodel::$model[$this->model_name]->idmodel], 'integer');
+                    settype($_GET[$this->model->idmodel], 'integer');
                     
-                    $id=$_GET[Webmodel::$model[$this->model_name]->idmodel];
+                    $id=$_GET[$this->model->idmodel];
                     
-                    $idmodel=Webmodel::$model[$this->model_name]->idmodel;
+                    $idmodel=$this->model->idmodel;
                     
-                    Webmodel::$model[$this->model_name]->set_conditions('WHERE '.$idmodel.'='.$id);
+                    $this->model->set_conditions('WHERE '.$idmodel.'='.$id);
                     
-                    if(Webmodel::$model[$this->model_name]->delete($_POST, $this->safe))
+                    if($this->model->delete($_POST, $this->safe))
                     {
                     
                         View::set_flash($this->text_deleted_item);
@@ -182,15 +182,22 @@ class GenerateAdminClass {
         if(Routes::$request_method=='GET')
         {
         
+            $id=$this->model->idmodel;
+        
+            if(isset($this->model->forms[$id]))
+            {
+                unset($this->model->forms[$id]);
+            }
+            
             $this->form(array(), $action);
             
         }
         elseif(Routes::$request_method=='POST')
         {
         
-            if(!Webmodel::$model[$this->model_name]->insert($_POST, $this->safe))
+            if(!$this->model->insert($_POST, $this->safe))
             {
-                echo '<p><span class="error">'.Webmodel::$model[$this->model_name]->std_error.'</span></p>';
+                echo '<p><span class="error">'.$this->model->std_error.'</span></p>';
                 
                 $this->form($_POST, $action, 1);
             
@@ -211,13 +218,13 @@ class GenerateAdminClass {
     public function update_model($action)
     {
     
-        $id=$_GET[Webmodel::$model[$this->model_name]->idmodel];
+        $id=$_GET[$this->model->idmodel];
         
         settype($id, 'integer');
         
-        $idmodel=Webmodel::$model[$this->model_name]->idmodel;
+        $idmodel=$this->model->idmodel;
         
-        $arr_row=Webmodel::$model[$this->model_name]->select_a_row($id);
+        $arr_row=$this->model->select_a_row($id);
         
         settype($arr_row[$idmodel], 'integer');
         
@@ -233,12 +240,12 @@ class GenerateAdminClass {
             else
             if(Routes::$request_method=='POST')
             {
-                Webmodel::$model[$this->model_name]->set_conditions('WHERE '.$idmodel.'='.$id);
+                $this->model->set_conditions('WHERE '.$idmodel.'='.$id);
                 
-                if(!Webmodel::$model[$this->model_name]->update($_POST, $this->safe))
+                if(!$this->model->update($_POST, $this->safe))
                 {
                 
-                    echo '<p><span class="error">'.Webmodel::$model[$this->model_name]->std_error.'</span></p>';
+                    echo '<p><span class="error">'.$this->model->std_error.'</span></p>';
                 
                     $this->form($_POST, $action, 1);
                 
@@ -261,16 +268,16 @@ class GenerateAdminClass {
     public function form($post, $action, $show_error=0)
     {
     
-        //ModelForm::pass_errors_to_form(Webmodel::$model[$this->model_name]);
+        //ModelForm::pass_errors_to_form($this->model);
     
-        ModelForm::set_values_form(Webmodel::$model[$this->model_name]->forms, $post, $show_error);
+        ModelForm::set_values_form($this->model->forms, $post, $show_error);
         
         $fields=$this->arr_fields_edit;
         
         $method='post';
         
         
-        echo View::load_view(array(Webmodel::$model[$this->model_name]->forms, $fields, $method, $action, $this->enctype), 'forms/updatemodelform');
+        echo View::load_view(array($this->model->forms, $fields, $method, $action, $this->enctype), 'forms/updatemodelform');
     
     }
     
