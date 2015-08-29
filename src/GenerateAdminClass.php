@@ -179,15 +179,15 @@ class GenerateAdminClass {
     public function insert_model($action)
     {
     
+        $id=$this->model->idmodel;
+        
+        if(isset($this->model->forms[$id]))
+        {
+            unset($this->model->forms[$id]);
+        }
+    
         if(Routes::$request_method=='GET')
         {
-        
-            $id=$this->model->idmodel;
-        
-            if(isset($this->model->forms[$id]))
-            {
-                unset($this->model->forms[$id]);
-            }
             
             $this->form(array(), $action);
             
