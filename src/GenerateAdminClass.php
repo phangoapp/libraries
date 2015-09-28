@@ -23,8 +23,6 @@ class GenerateAdminClass {
     
     public $arr_fields_edit=array();
     
-    public $enctype='';
-    
     public $url='';
     
     public $safe=0;
@@ -277,7 +275,7 @@ class GenerateAdminClass {
         $method='post';
         
         
-        echo View::load_view(array($this->model->forms, $fields, $method, $action, $this->enctype), 'forms/updatemodelform');
+        echo View::load_view(array($this->model->forms, $fields, $method, $action, $this->model->enctype), 'forms/updatemodelform');
     
     }
     
