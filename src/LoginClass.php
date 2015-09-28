@@ -276,7 +276,7 @@ class LoginClass {
 			}
 			else
 			{
-			
+                $_SESSION=array();
 				$this->session=$arr_user;
 			
 				return true;
