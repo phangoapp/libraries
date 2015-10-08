@@ -234,7 +234,7 @@ class LoginClass {
 	public function logout()
 	{
 	
-		unset($_SESSION);
+		$_SESSION=array();
 	
 		session_destroy();
 		
@@ -276,7 +276,7 @@ class LoginClass {
 			}
 			else
 			{
-                $_SESSION=array();
+                $_SESSION[$this->model_login->idmodel]=$arr_user[$this->model_login->idmodel];
 				$this->session=$arr_user;
 			
 				return true;
