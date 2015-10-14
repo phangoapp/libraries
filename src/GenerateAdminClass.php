@@ -191,11 +191,11 @@ class GenerateAdminClass {
     {
     
         $id=$this->model->idmodel;
-        
+        /*
         if(isset($this->model->forms[$id]))
         {
             unset($this->model->forms[$id]);
-        }
+        }*/
     
         if(Routes::$request_method=='GET')
         {
@@ -205,6 +205,13 @@ class GenerateAdminClass {
         }
         elseif(Routes::$request_method=='POST')
         {
+        
+            if(isset($_GET[$id]))
+            {
+            
+                unset($_GET[$id]);
+            
+            }
         
             if(!$this->model->insert($_POST, $this->safe))
             {
