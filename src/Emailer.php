@@ -4,7 +4,7 @@
 *
 * @author  Antonio de la Rosa <webmaster@web-t-sys.com>
 * @file
-* @package ExtraUtils
+* @package PhaLibs
 *
 *
 */
@@ -13,7 +13,23 @@ namespace PhangoApp\PhaLibs;
 
 //Now, we use swiftmailer.
 
+/**
+* Simple class for send emails using SwitchMailer how 
+*/
+
 class Emailer {
+
+    /**
+    * Method for send email
+    * 
+    * @param string $sender The email address used for send the email
+    * @param string $email The email adress where the message is sended
+    * @param string $subject The subject of email
+    * @param string $message The content of email
+    * @param string $content_type The type of email, values can be plain or html
+    * @param array $arr_bcc An Array with emails sended using BCC
+    * @param array $attachments A list of files to be sended with the email
+    */
 
     static public function send_mail($sender, $email, $subject, $message, $content_type='plain', $arr_bcc=array(), $attachments=array())
     {

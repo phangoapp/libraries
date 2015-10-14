@@ -1,5 +1,14 @@
 <?php
 
+/**
+*
+* @author  Antonio de la Rosa <webmaster@web-t-sys.com>
+* @file
+* @package PhaLibs
+*
+*
+*/
+
 namespace PhangoApp\PhaLibs;
 
 use PhangoApp\PhaLibs\SimpleList;
@@ -10,6 +19,10 @@ use PhangoApp\PhaUtils\Utils;
 use PhangoApp\PhaRouter\Routes;
 use PhangoApp\PhaI18n\I18n;
 use PhangoApp\PhaLibs\HierarchyLinks;
+
+/**
+* A base class for create simple admin sites
+*/
 
 class GenerateAdminClass {
 
