@@ -21,6 +21,9 @@ class AdminUtils {
 
     /**
     * A simple method for create urls for use in admin
+    *
+    * With this method you can create easily urls for your admin site
+    *
     * @param string $text_admin The module to admin
     * @param array $parameters An array with format key value used for set get values in the new url
     */
