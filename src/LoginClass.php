@@ -38,7 +38,7 @@ class LoginClass {
 	public $arr_user_session;
 	public $arr_user_insert=array();
 	public $field_key;
-	static public $session;
+	static public $session=array();
 	public $url_login='';
 	public $url_insert='';
 	public $url_recovery='';
@@ -173,7 +173,7 @@ class LoginClass {
 		
 				unset($arr_user[$this->field_password]);
 			
-				LoginClass::$session=$arr_user;
+				LoginClass::$session[$this->model_login->name]=$arr_user;
 				
 				//Create token
 				
@@ -277,7 +277,7 @@ class LoginClass {
 			else
 			{
                 //$_SESSION[$this->model_login->idmodel]=$arr_user[$this->model_login->idmodel];
-				LoginClass::$session=$arr_user;
+				LoginClass::$session[$this->model_login->name]=$arr_user;
 			
 				return true;
 			
