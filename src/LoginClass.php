@@ -9,13 +9,6 @@
 *
 */
 
-/*namespace PhangoApp\Framework\Libraries;
-
-use PhangoApp\PhaView\View;
-use PhangoApp\PhaI18n\I18n;
-use PhangoApp\PhaModels\ModelForm;
-use PhangoApp\PhaModels\CoreFields\PasswordField;*/
-
 namespace PhangoApp\PhaLibs;
 
 use PhangoApp\PhaModels\ModelForm;
@@ -26,32 +19,169 @@ use PhangoApp\PhaUtils\Utils;
 use PhangoApp\PhaRouter\Routes;
 use PhangoApp\PhaLibs\Emailer;
 
+/**
+* A class for make logins easily
+*
+* With this class you can create simple logins for phangoapp
+*/
+
 class LoginClass {
 
+    /**
+    * The model used for login
+    */
+
 	public $model_login;
+	
+	/**
+	* The field used for read the username
+	*/
+	
 	public $field_user;
+	
+	/**
+    * The field used for read the real name of user
+    */
+	
 	public $field_name='name';
+	
+	/**
+    * The field used for read the password
+    */
+	
 	public $field_password;
+	
+	/**
+    * The field used for read the email of the user
+    */
+	
 	public $field_mail='email';
+	
+	/**
+    * The field used for save the token used for recovery password
+    */
+	
 	public $field_recovery='token_recovery';
+	
+	/**
+	* The name of cookie
+	*/
+	
 	public $name_cookie='';
+	
+	/**
+    * An array for save data of the session
+    */
+	
 	public $arr_user_session;
+	
+	/**
+    * An internal array used for set the fields to insert in new row in table
+    */
+	
 	public $arr_user_insert=array();
+	
+	/**
+    * The field used for save the key of this user when is login
+    */
+	
 	public $field_key;
+	
+	/**
+    * A global property for save user values and access to him if you are logged
+    */
+	
 	static public $session=array();
+	
+	/**
+    * The url for login
+    */
+	
 	public $url_login='';
+	
+	/**
+    * The url where user is inserted
+    */
+	
 	public $url_insert='';
+	
+	/**
+    * The url for recovery the password
+    */
+	
 	public $url_recovery='';
+	
+	/**
+    * The url for send to the user for recovery the password
+    */
+	
 	public $url_recovery_send='';
+	
+	/**
+    * The login view
+    */
+	
 	public $login_view='common/user/standard/loginform';
+	
+	/**
+    * Fields that the user can edit
+    */
+	
 	public $edit_fields=array();
+	
+	/**
+	* View for form used for create the new user
+	*/
+	
 	public $create_account_view='common/user/standard/insertuserform';
+	
+	/**
+    * View for form used for recovery password
+    */
+	
 	public $recovery_pass_view='common/user/standard/recoverypassform';
+	
+	/**
+	* The hash method used for create the token for identified to the user via cookie
+	*/
+	
 	public $method_crypt='sha256';
+	
+	/**
+    * A simple property used for accept conditions
+    */
+	
 	public $accept_conditions=1;
+	
+	/**
+    * Internal property used for view if the form for create user was prepared
+    */
+	
 	public $was_prepared=0;
+	
+	/**
+    * The cookie path
+    */
+	
 	public $cookie_path='';
+	
+	/**
+    * The email address showed to the user when emails are sended to the user
+    */
+	
 	public $sender='';
+	
+	/**
+	* Method for create a new LoginClass instance
+	*
+	* @param Webmodel $model_login The UserPhangoModel class instance used in LoginClass 
+	* @param string $field_user The field of model used how username
+	* @param string $field_password The field of model used for save password hash
+	* @param string $field_key The field of model used for save key of logged user
+	* @param array $arr_user_session An array for search the fields loaded in LoginClass::$session property
+	* @param array $arr_user_insert The values to insert in a new row for a new user
+	*/
+	
 	
 	public function __construct($model_login, $field_user, $field_password, $field_key, $arr_user_session=array(), $arr_user_insert=array())
 	{
@@ -102,6 +232,7 @@ class LoginClass {
 
 	}
 	
+	/*
 	public function automatic_login($iduser)
 	{
 	
@@ -109,7 +240,16 @@ class LoginClass {
 	
 		return $this->login($arr_user[$this->field_user], $arr_user[$this->field_password], 0, 1);
 	
-	}
+	}*/
+	
+	/**
+	* The method used for login using login and password
+	* 
+	* @param string $user A string contained the username
+	* @param string $password A string contained the password
+	* @param boolean $no_expire_session if true or 0, the session expires when the navigator is closed. If is true or 1, then the session have a lifetime of a year
+	* @param boolean $yes_hash If is true or 1, then use the $password argument how a hash, if not, is treated how plain text
+	*/
 	
 	public function login($user, $password, $no_expire_session=0, $yes_hash=0)
 	{
@@ -231,6 +371,10 @@ class LoginClass {
 	
 	}
 	
+	/**
+	* Method for logout from the site
+	*/
+	
 	public function logout()
 	{
 	
@@ -241,6 +385,10 @@ class LoginClass {
 		setcookie(sha1($this->name_cookie), 0, 0, $this->cookie_path);
 	
 	}
+	
+	/**
+    * Method for check if the user is logged
+    */
 	
 	public function check_login()
 	{
@@ -296,6 +444,10 @@ class LoginClass {
 	
 	}
 	
+	/**
+    * Method for load a form for login
+    */
+	
 	public function login_form()
 	{
 		
@@ -303,12 +455,20 @@ class LoginClass {
 	
 	}
 	
+	/**
+    * Method for load a form for recovery password
+    */
+	
 	public function recovery_password_form()
 	{
 		
 		echo View::load_view(array($this->model_login, $this), $this->recovery_pass_view);
 	
 	}
+	
+	/**
+    * Method for recovery the password using a token. The data is obtain from $_GET['token_recovery']
+    */
 	
 	public function recovery_password()
 	{
@@ -468,6 +628,9 @@ class LoginClass {
 		}
 	
 	}
+	/**
+	* A method that create a form for user register
+	*/
 	
 	public function create_account_form()
 	{
@@ -482,6 +645,10 @@ class LoginClass {
 		echo View::load_view(array('model' => $this->model_login, 'login_model' => $this), $this->create_account_view);
 	
 	}
+	
+	/**
+	* Create an account from a form created with LoginClass::create_account_form
+	*/
 	
 	public function create_account()
 	{
@@ -567,6 +734,10 @@ class LoginClass {
 	
 	}
 	
+	/**
+	* An internal method used for prepare forms with repeat_password form
+	*/
+	
 	public function prepare_insert_user()
 	{
 		
@@ -586,6 +757,10 @@ class LoginClass {
 		}
 	
 	}
+	
+	/**
+	* A internal method for format the cookie used and obtain a token
+	*/
 	
 	public function obtain_cookie_token()
 	{
