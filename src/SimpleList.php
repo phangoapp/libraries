@@ -26,6 +26,7 @@ class SimpleList
 	public $arr_fields_showed=array();
 	public $arr_fields_no_showed=array();
 	public $arr_fields_search=array();
+	public $default_field_search='';
 	public $arr_extra_fields=array();
 	public $arr_extra_fields_func=array();
 	public $arr_cell_sizes=array();
@@ -121,7 +122,7 @@ class SimpleList
 	
 	public function obtain_list()
 	{
-	
+        
         $this->model->set_conditions($this->where_sql);
             
         $this->model->set_order($this->order_by);
@@ -310,12 +311,12 @@ class SimpleList
             {
             
                 //$_GET['search']=trim($this->model->components[$_GET['field_search']]->check($_GET['search']));
-                $_GET['search']=trim(Utils::form_text($_GET['search']));
+                //$_GET['search']=trim(Utils::form_text($_GET['search']));
                 
                 if($_GET['search']!=false)
                 {
             
-                    $this->where_sql='WHERE `'.$_GET['field_search'].'` LIKE "%'.$_GET['search'].'%"';
+                    $this->where_sql=['WHERE `'.$_GET['field_search'].'` LIKE ?', ['%'.$_GET['search'].'%']];
                     
                 }
             
