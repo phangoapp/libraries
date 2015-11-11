@@ -4,7 +4,7 @@
 *
 * @author  Antonio de la Rosa <webmaster@web-t-sys.com>
 * @file
-* @package ExtraUtils/Login
+* @package PhangoApp\PhaLibs
 *
 *
 */
@@ -179,7 +179,7 @@ class LoginClass {
 	* @param string $field_password The field of model used for save password hash
 	* @param string $field_key The field of model used for save key of logged user
 	* @param array $arr_user_session An array for search the fields loaded in LoginClass::$session property
-	* @param array $arr_user_insert The values to insert in a new row for a new user
+	* @param array $arr_user_insert The values to insert in a new row for create a new user with create_account method
 	*/
 	
 	
@@ -321,7 +321,9 @@ class LoginClass {
 				
 				$this->model_login->reset_require();
 				
-				if( $this->model_login->update(array($this->field_key => sha1($new_token)), 'where `'.$this->model_login->idmodel.'`='.$arr_user[$this->model_login->idmodel]) )
+				$this->model_login->set_conditions('where `'.$this->model_login->idmodel.'`='.$arr_user[$this->model_login->idmodel]);
+				
+				if( $this->model_login->update(array($this->field_key => sha1($new_token))))
 				{
 					
 					$this->model_login->reload_require();
@@ -766,6 +768,17 @@ class LoginClass {
 	{
 	
 		return $_COOKIE[sha1($this->name_cookie)];
+	
+	}
+	
+	/**
+	* A shortcut for delete the users
+	*/
+	
+	public function delete_user($id)
+	{
+	
+        return $this->model_login->delete($id);
 	
 	}
 	

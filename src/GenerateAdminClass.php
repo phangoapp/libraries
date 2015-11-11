@@ -163,7 +163,7 @@ class GenerateAdminClass {
                     
                     $idmodel=$this->model->idmodel;
                     
-                    $this->model->set_conditions('WHERE '.$idmodel.'='.$id);
+                    $this->model->set_conditions(['WHERE '.$idmodel.'=?', [$id]]);
                     
                     if($this->model->delete($_POST, $this->safe))
                     {
