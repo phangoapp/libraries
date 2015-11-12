@@ -47,6 +47,7 @@ class SimpleList
 	public $yes_search=0;
 	public $order_field='';
 	public $order=0;
+	public $yes_id=1;
 	
 	function __construct($model)
 	{
@@ -67,6 +68,25 @@ class SimpleList
 		
 		$this->order_field=$this->model->idmodel;
 		
+	}
+	
+	public function set_yes_id($bool)
+	{
+	
+        if($bool)
+        {
+        
+            $this->yes_id=1;
+        
+        }
+        else
+        {
+        
+            $this->yes_id=0;
+            $this->yes_options=0;
+        
+        }
+	
 	}
 	
 	public function set_fields_showed($arr_fields=array())
@@ -90,7 +110,7 @@ class SimpleList
         }
         
         
-        if(!in_array($this->model->idmodel, $this->arr_fields))
+        if(!in_array($this->model->idmodel, $this->arr_fields) && $this->yes_id==1)
         {
         
             $this->arr_fields[]=$this->model->idmodel;
@@ -141,7 +161,7 @@ class SimpleList
         foreach($this->arr_fields_showed as $field)
         {
         
-            $arr_row_final[$field]=webmodel::$model[$this->model_name]->components[$field]->show_formatted($arr_row[$field],  $arr_row);
+            $arr_row_final[$field]=Webmodel::$model[$this->model_name]->components[$field]->show_formatted($arr_row[$field],  $arr_row);
         
         }
         
