@@ -19,7 +19,7 @@ class HierarchyLinks {
 	
 	public $arr_indexes=array();
 	
-	public function __construct($arr_links)
+	public function __construct(array $arr_links)
 	{
 	
 		$this->arr_links=$arr_links;
