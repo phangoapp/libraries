@@ -14,14 +14,20 @@ namespace PhangoApp\PhaLibs;
 //Now, we use swiftmailer.
 
 /**
-* Simple class for send emails using SwitchMailer how 
+* Simple class for send emails
+*
 */
 
 class Emailer {
 
     /**
-    * Method for send email
+    * Simple method for send emails using SwiftMailer.
+    *
+    * A method used for send_mail using a smtp server. You can config this method with contants called SMTP_HOST, SMTP_USER and SMTP_PASS
+    * You can send lists using bcc features, html text, attachments, etc...
+    *
     * 
+    * @param const  SMTP_HOST the host used for send the email
     * @param string $sender The email address used for send the email
     * @param string $email The email adress where the message is sended
     * @param string $subject The subject of email
