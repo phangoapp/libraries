@@ -20,6 +20,12 @@ use PhangoApp\PhaRouter\Routes;
 class AdminUtils {
 
     /**
+    * A simple property that define if the admin content is showed in admin view or raw (you can use headers if you want in your admin code).
+    */
+
+    static public $show_admin_view=true;
+
+    /**
     * A simple method for create urls for use in admin
     *
     * With this method you can create easily urls for your admin site
@@ -31,7 +37,8 @@ class AdminUtils {
 	static public function set_admin_link($text_admin, $parameters)
 	{
 	
-		return Routes::make_module_url(ADMIN_FOLDER, 'index', 'home', array($text_admin), $get=$parameters);
+		#return Routes::make_module_url(ADMIN_FOLDER, 'index', 'home', array($text_admin), $get=$parameters);
+		return Routes::make_simple_url(ADMIN_FOLDER, array($text_admin), $parameters);
 
 	}
 
