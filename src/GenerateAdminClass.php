@@ -242,7 +242,7 @@ class GenerateAdminClass {
         
         $idmodel=$this->model->idmodel;
         
-        $arr_row=$this->model->select_a_row($id);
+        $arr_row=$this->model->select_a_row($id, array(), true);
         
         settype($arr_row[$idmodel], 'integer');
         
