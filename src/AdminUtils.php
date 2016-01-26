@@ -34,7 +34,7 @@ class AdminUtils {
     * @param array $parameters An array with format key value used for set get values in the new url
     */
 
-	static public function set_admin_link($text_admin, $parameters)
+	static public function set_admin_link($text_admin, $parameters=array())
 	{
 	
 		#return Routes::make_module_url(ADMIN_FOLDER, 'index', 'home', array($text_admin), $get=$parameters);
