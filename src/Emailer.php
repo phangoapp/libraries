@@ -19,6 +19,8 @@ namespace PhangoApp\PhaLibs;
 */
 
 class Emailer {
+    
+    static public $txt_error='';
 
     /**
     * Simple method for send emails using SwiftMailer.
@@ -123,8 +125,10 @@ class Emailer {
             
             return 1;
         }
-        catch(Exception $e)
+        catch(\Exception $e)
         {
+            
+            Emailer::$txt_error=$e->getMessage();
             
             return 0;
         
