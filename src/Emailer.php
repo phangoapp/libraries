@@ -11,6 +11,8 @@
 
 namespace PhangoApp\PhaLibs;
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 //Now, we use swiftmailer.
 
 /**
@@ -42,7 +44,103 @@ class Emailer {
     static public function send_mail($sender, $email, $subject, $message, $content_type='plain', $arr_bcc=array(), $attachments=array())
     {
 
+        /*
+        $mail = new PHPMailer;
+
+        //$mail->SMTPDebug = 3;                               // Enable verbose debug output
+        
+        $mail->isSMTP();                                      // Set mailer to use SMTP
+        
+        $mail->CharSet = "UTF-8";
+        
+        if( defined('SMTP_HOST') && defined('SMTP_USER') && defined('SMTP_PASS') )
+        {
             
+            $mail->SMTPAuth = true;                               // Enable SMTP authentication
+        
+            $mail->Host = SMTP_HOST;  // Specify main and backup SMTP servers
+        
+            $mail->Username = SMTP_USER;                 // SMTP username
+            $mail->Password = SMTP_PASS;                           // SMTP password
+            
+            if(defined('SMTP_ENCRIPTION'))
+            {
+            
+                $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
+            
+            }
+            
+        }
+        
+        if(!defined('SMTP_PORT'))
+        {
+            
+            define('SMTP_PORT', 25);
+            
+        }
+
+        $mail->Port = SMTP_PORT;                                    // TCP port to connect to
+
+        if(!defined('SMTP_SENDER'))
+        {
+        
+            define('SMTP_SENDER', $sender);
+        
+        }
+
+        $mail->setFrom(SMTP_SENDER);
+        $mail->addAddress($email);     // Add a recipient
+        
+        
+        foreach($arr_bcc as $email_bcc)
+        {
+        
+            $mail->addBCC($email_bcc);
+
+        }
+
+        foreach($attachments as $attachment)
+        {
+
+            $mail->addAttachment($attachment);         // Add attachments
+        
+        }
+        
+        switch($content_type)
+        {
+        
+            default:
+        
+                $mail->isHTML(false);                                  // Set email format to HTML
+                
+            break;
+            
+            case 'html':
+            
+                $mail->isHTML($true);                                  // Set email format to HTML
+            
+            break;
+            
+        }
+
+        $mail->Subject = $subject;
+        $mail->Body    = $message;
+        $mail->AltBody = $message;
+
+        if(!$mail->send()) 
+        {
+            
+            Emailer::$txt_error=$mail->ErrorInfo;
+            
+            return false;
+            
+        } 
+        else 
+        {
+            return true;
+        }
+        */
+        
         if( defined('SMTP_HOST') && defined('SMTP_USER') && defined('SMTP_PASS') )
         {
         
@@ -145,6 +243,10 @@ class Emailer {
             }
         
         }
+        
+        //Reset transport
+        
+        $transport->reset();
         
         return 1;
 
