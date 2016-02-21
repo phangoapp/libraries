@@ -306,6 +306,51 @@ class GenerateAdminClass {
         $this->url=$url;
     
     }
+    
+    public function show_config()
+    {
+    
+        settype($_GET['op_admin'], 'integer');
+        
+        $action=Routes::add_get_parameters($this->url, array('op_admin' => 1));
+        
+        switch($_GET['op_admin'])
+        {
+        
+            default:
+            
+                $post=$this->model->select_a_row_where($this->arr_fields_edit);
+            
+                $this->form($post, $action);
+            
+            break;
+            
+            case 1:
+            
+                $c=$this->model->select_count();
+                
+                if($c>0)
+                {
+                
+                    $post=$this->model->select_a_row_where([$this->model->idmodel]);
+                    
+                    $_GET[$this->model->idmodel]=$post[$this->model->idmodel];
+                    
+                    $this->update_model($action);
+                
+                }
+                else
+                {
+                
+                    $this->insert_model($action);
+                
+                }
+            
+            break;
+        
+        }
+    
+    }
 
 }
 
