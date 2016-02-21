@@ -67,7 +67,7 @@ class ParentLinks {
         if($id!=0)
         {
         
-            $arr_hierarchy=recursive_obtain_father($arr_id_father, $arr_id_father[$id], $arr_id_name, $arr_hierarchy);
+            $arr_hierarchy=$this->recursive_obtain_father($arr_id_father, $arr_id_father[$id], $arr_id_name, $arr_hierarchy);
         
         }
         
