@@ -13,7 +13,7 @@ class ParentLinks {
     public $field_name;
     public $idmodel;
 
-    public function __construct($url, $model_name, $parentfield_name, $field_name, $idmodel, $last_link=0, $arr_parameters=[])
+    public function __construct($url, $model_name, $parentfield_name, $field_name, $idmodel, $last_link=0, $arr_parameters=[], $arr_pretty_parameters=[])
     {
     
         $this->url=$url;
@@ -23,6 +23,7 @@ class ParentLinks {
         $this->idmodel=$idmodel;
         $this->last_link=$last_link;
         $this->arr_parameters=$arr_parameters;
+        $this->arr_pretty_parameters=$arr_pretty_parameters;
     
     }
 

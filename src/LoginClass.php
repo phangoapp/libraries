@@ -232,15 +232,15 @@ class LoginClass {
 
 	}
 	
-	/*
+	
 	public function automatic_login($iduser)
 	{
 	
 		$arr_user=$this->model_login->select_a_row($iduser, array($this->field_user, $this->field_password));
-	
+        
 		return $this->login($arr_user[$this->field_user], $arr_user[$this->field_password], 0, 1);
 	
-	}*/
+	}
 	
 	/**
 	* The method used for login using login and password
@@ -254,7 +254,7 @@ class LoginClass {
 	public function login($user, $password, $no_expire_session=0, $yes_hash=0)
 	{
 		//load_libraries(array('fields/passwordfield'));
-	
+        
 		$check_password=0;
 	
 		$user=Utils::form_text($user);
@@ -299,6 +299,7 @@ class LoginClass {
 			else
 			{
 			
+            
 				if($password===$arr_user[$this->field_password])
 				{
 				
@@ -323,6 +324,8 @@ class LoginClass {
 				
 				$this->model_login->set_conditions('where `'.$this->model_login->idmodel.'`='.$arr_user[$this->model_login->idmodel]);
 				
+				$this->model_login->fields_to_update=[$this->field_key];
+				
 				if( $this->model_login->update(array($this->field_key => sha1($new_token))))
 				{
 					
@@ -340,7 +343,7 @@ class LoginClass {
 					
 					if(!setcookie(sha1($this->name_cookie), $new_token,$lifetime, $this->cookie_path))
 					{
-						
+                        
 						return false;
 					
 					}
@@ -688,6 +691,8 @@ class LoginClass {
                         $this->model_login->components[$field_require]->required=1;
                     }
                 }
+                
+                $this->model_login->fields_to_update=$this->arr_user_insert;
                 
                 if($this->model_login->insert($post))
                 {
