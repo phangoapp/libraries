@@ -694,6 +694,8 @@ class LoginClass {
                 
                 $this->model_login->fields_to_update=$this->arr_user_insert;
                 
+                $this->model_login->components['password']->protected=false;
+                
                 if($this->model_login->insert($post))
                 {
                     
