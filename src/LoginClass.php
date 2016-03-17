@@ -261,7 +261,7 @@ class LoginClass {
 		
 		$this->arr_user_session[]=$this->field_password;
 		
-		$this->model_login->set_conditions('where '.$this->field_user.'="'.$user.'"');
+		$this->model_login->set_conditions(['where '.$this->field_user.'=?', [$user]]);
 		
 		$arr_user=$this->model_login->select_a_row_where($this->arr_user_session);
 		
