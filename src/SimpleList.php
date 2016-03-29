@@ -53,7 +53,7 @@ class SimpleList
 	{
 		settype($_GET['begin_page'], 'integer');
 		
-		$this->model=&$model;
+		$this->model=$model;
 		
 		$this->model_name=$this->model->name;
 		

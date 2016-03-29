@@ -37,7 +37,7 @@ class ParentLinks {
         //Cache system?
         
         $arr_id_father=array(0 => 0);
-        $arr_id_name=array(0 => I18n::$lang['common']['home']);
+        $arr_id_name=array(0 => I18n::lang('common', 'home', 'Home'));
         $arr_hierarchy=array();
         
         $query=Webmodel::$model[$this->model_name]->select(array(Webmodel::$model[$this->model_name]->idmodel, $this->parentfield_name, $this->field_name), 1);

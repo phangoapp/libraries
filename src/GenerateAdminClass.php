@@ -77,6 +77,8 @@ class GenerateAdminClass {
         
         $this->text_deleted_item_error=I18n::lang('common', 'item_deleted_error', 'Error, cannot delete the field. Please, check for errors');
         
+        $this->extra_info_for_create='';
+        
         if(count($this->model->forms)==0)
         {
         
