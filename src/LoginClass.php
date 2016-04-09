@@ -170,6 +170,8 @@ class LoginClass {
     */
 	
 	public $sender='';
+    
+    public $txt_error='';
 	
 	/**
 	* Method for create a new LoginClass instance
@@ -347,6 +349,14 @@ class LoginClass {
 						return false;
 					
 					}
+                    
+                    if(!session_regenerate_id(true))
+                    {
+                        $this->txt_error='Error: cannot regenerate the session id';
+                        return false;
+                        
+                    }
+                    
 					//echo sha1($new_token); die;
 					return true;
 					
