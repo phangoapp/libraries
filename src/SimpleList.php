@@ -113,7 +113,8 @@ class SimpleList
         if(!in_array($this->model->idmodel, $this->arr_fields) && $this->yes_id==1)
         {
         
-            $this->arr_fields[]=$this->model->idmodel;
+            //$this->arr_fields[]=$this->model->idmodel;
+            array_unshift($this->arr_fields, $this->model->idmodel);
             
         
         }
