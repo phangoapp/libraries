@@ -321,8 +321,8 @@ class GenerateAdminClass {
         
             default:
             
-                $post=$this->model->select_a_row_where($this->arr_fields_edit);
-            
+                $post=$this->model->select_a_row_where($this->arr_fields_edit, true);
+                
                 $this->form($post, $action);
             
             break;
@@ -334,7 +334,7 @@ class GenerateAdminClass {
                 if($c>0)
                 {
                 
-                    $post=$this->model->select_a_row_where([$this->model->idmodel]);
+                    $post=$this->model->select_a_row_where([$this->model->idmodel], true);
                     
                     $_GET[$this->model->idmodel]=$post[$this->model->idmodel];
                     
