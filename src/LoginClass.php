@@ -427,7 +427,7 @@ class LoginClass {
 			
 			$this->model_login->set_conditions('where '.$this->field_key.'="'.$cookie_val.'"');
 			
-			$arr_user=$this->model_login->select_a_row_where($this->arr_user_session);
+			$arr_user=$this->model_login->select_a_row_where($this->arr_user_session, true);
 			
 			settype($arr_user[$this->model_login->idmodel], 'integer');
 			
