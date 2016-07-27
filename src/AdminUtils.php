@@ -12,6 +12,7 @@
 namespace PhangoApp\PhaLibs;
 
 use PhangoApp\PhaRouter\Routes;
+use PhangoApp\PhaI18n\I18n;
 
 /**
 * A simple class for utilities used in admin
@@ -24,6 +25,15 @@ class AdminUtils {
     */
 
     static public $show_admin_view=true;
+    
+    /**
+    * A property that define the index of admin
+    * 
+    */
+    
+    static public $admin_controller=array('admin', 'vendor/phangoapp/admin/controllers/admin/admin_admin');
+
+    static public $name_admin='';
 
     /**
     * A simple method for create urls for use in admin
@@ -43,5 +53,7 @@ class AdminUtils {
 	}
 
 }
+
+AdminUtils::$name_admin=I18n::lang('admin', 'admin', 'Admin');
 
 ?>
