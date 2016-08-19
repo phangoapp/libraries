@@ -2,7 +2,19 @@
 
 namespace PhangoApp\PhaLibs;
 
+/**
+* Simple static method for create father and son links using an array
+*
+*/
+
 class FatherLinks {
+    
+    /**
+    * Static method for show a series of hierarchy links defined by fathers and sons
+    * 
+    * @param string $switch This element define the key of arr_links where the page is placed
+    * @param string $arr_links The links ordered by father to son define by the key father
+    */
 
     static public function show($switch, $arr_links)
     {

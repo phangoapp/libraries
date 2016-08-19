@@ -26,6 +26,10 @@ use PhangoApp\PhaLibs\HierarchyLinks;
 
 class GenerateAdminClass {
 
+    /**
+    * Property that define the model used for generate an admin
+    */
+
     public $model_name='';
 
     public $list;

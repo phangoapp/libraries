@@ -234,6 +234,12 @@ class LoginClass {
 
 	}
 	
+    /**
+    * Method for make an automatic login in an php script
+    * 
+    * @warning Please use this method if you are sure that really is an user that can login automatically
+    * @param integer $iduser The id key of the user for make automatic login
+    */
 	
 	public function automatic_login($iduser)
 	{
@@ -342,13 +348,6 @@ class LoginClass {
 						
 					
 					}
-					
-					if(!setcookie(sha1($this->name_cookie), $new_token,$lifetime, $this->cookie_path))
-					{
-                        
-						return false;
-					
-					}
                     
                     if(!session_regenerate_id(true))
                     {
@@ -356,6 +355,13 @@ class LoginClass {
                         return false;
                         
                     }
+                    
+                    if(!setcookie(sha1($this->name_cookie), $new_token,$lifetime, $this->cookie_path))
+					{
+                        
+						return false;
+					
+					}
                     
 					//echo sha1($new_token); die;
 					return true;

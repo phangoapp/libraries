@@ -33,6 +33,11 @@ class AdminUtils {
     
     static public $admin_controller=array('admin', 'vendor/phangoapp/admin/controllers/admin/admin_admin');
 
+    /**
+    * The name of the default admin home.You need change it if you changed the admin controller 
+    * 
+    */
+
     static public $name_admin='';
 
     /**
