@@ -1,9 +1,6 @@
 {
     "name": "phangoapp/phalibs",
     "description": "Basic classes libraries for phango framework",
-    "require-dev": {
-        "phpunit/phpunit": "~4.8@dev"
-    },
     "license": "GPL",
     "authors": [
         {
@@ -11,7 +8,6 @@
             "email": "webmaster@web-t-sys.com"
         }
     ],
-    "minimum-stability": "dev-master",
     "require": {
         
         "swiftmailer/swiftmailer": "@stable"
