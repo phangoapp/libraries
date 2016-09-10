@@ -99,6 +99,16 @@ class SimpleList
 	
 	public function load_fields_showed($arr_fields_no_showed=array())
 	{
+       
+        $link_search='no_set_label';
+        
+        if($this->yes_search)
+        {
+            
+            $link_search='set_label';
+            
+        }
+       
 	
         $arr_fields_show=array();
         
@@ -133,7 +143,7 @@ class SimpleList
         foreach($arr_fields_showed as $field)
         {
         
-            $arr_fields_show[$field]=$this->model->forms[$field]->label;
+            $arr_fields_show[$field]=$this->$link_search($this->model->forms[$field]->label, $field, $this->url_options);
         
         }
         
@@ -184,6 +194,14 @@ class SimpleList
 	public function show()
 	{
         settype($_GET['ajax'], 'integer');
+        
+        if($this->yes_search)
+        {
+            
+            $this->search_by_url();
+            $this->change_order_by_url();
+            
+        }
         
         $arr_fields_show=$this->load_fields_showed($this->arr_fields_no_showed);
             
@@ -291,6 +309,8 @@ class SimpleList
         
         }
         
+        $this->order=$_GET['order'];
+        
         $arr_order[$_GET['order']]='ASC';
         $arr_order[0]='ASC';
         $arr_order[1]='DESC';
@@ -313,6 +333,8 @@ class SimpleList
     
     }
     
+    //First search by url, after order.
+    
     public function search_by_url()
     {
         
@@ -322,6 +344,8 @@ class SimpleList
             $_GET['field_search']=$this->order_field;
             
         }
+        
+        $this->order_field=$_GET['field_search'];
     
         if(isset($_GET['search']) && isset($_GET['field_search']))
         {
@@ -361,6 +385,48 @@ class SimpleList
         
         }
     
+    }
+    
+    public function set_label($name, $field, $url_options)
+    {
+        
+        $arr_order[0]='<i class="fa fa-arrow-down" aria-hidden="true"></i>';
+        $arr_order[1]='<i class="fa fa-arrow-up" aria-hidden="true"></i>';
+
+        $draw_order='';
+        
+        $set_order=$this->order;
+        
+        if($field==$this->order_field)
+        {
+            
+            $draw_order=$arr_order[$this->order];
+            
+            if($this->order==1)
+            {
+                
+                $set_order=0;
+                
+            }
+            else
+            {
+                
+                $set_order=1;
+                
+            }
+            
+        }
+        
+        return '<a href="'.Routes::add_get_parameters($url_options, array('field_search' => $field, 'order' => $set_order)).'">'.$draw_order.$name.'</a>';
+        
+        
+    }
+    
+    function no_set_label($name, $field, $url_options)
+    {
+        
+        return $name;
+        
     }
 	
 	static public function BasicOptionsListModel($url_options, $model_name, $id)
