@@ -59,6 +59,6 @@ class AdminUtils {
 
 }
 
-AdminUtils::$name_admin=I18n::lang('admin', 'admin', 'Admin');
+AdminUtils::$name_admin=I18n::lang('phangoapp/admin', 'admin', 'Admin');
 
 ?>
