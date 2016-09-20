@@ -319,7 +319,7 @@ class LoginClass {
 			
 			if($yes_password==1)
 			{
-		
+                
 				unset($arr_user[$this->field_password]);
 			
 				LoginClass::$session[$this->model_login->name]=$arr_user;
@@ -333,8 +333,10 @@ class LoginClass {
 				$this->model_login->set_conditions('where `'.$this->model_login->idmodel.'`='.$arr_user[$this->model_login->idmodel]);
 				
 				$this->model_login->fields_to_update=[$this->field_key];
+                
+                $final_token=sha1($new_token);
 				
-				if( $this->model_login->update(array($this->field_key => sha1($new_token))))
+				if( $this->model_login->update(array($this->field_key => $final_token)))
 				{
 					
 					$this->model_login->reload_require();
@@ -356,12 +358,17 @@ class LoginClass {
                         
                     }
                     
-                    if(!setcookie(sha1($this->name_cookie), $new_token,$lifetime, $this->cookie_path))
+                    $_SESSION['login']=1;
+                    $_SESSION[$this->model_login->idmodel]=$arr_user[$this->model_login->idmodel];
+                    $_SESSION['token']=$final_token;
+                    
+                    /*
+                    if(!setcookie($this->name_cookie, $new_token,$lifetime, $this->cookie_path))
 					{
                         
 						return false;
 					
-					}
+					}*/
                     
 					//echo sha1($new_token); die;
 					return true;
@@ -403,7 +410,7 @@ class LoginClass {
 	
 		session_destroy();
 		
-		setcookie(sha1($this->name_cookie), 0, 0, $this->cookie_path);
+		//setcookie($this->name_cookie, 0, 0, $this->cookie_path);
 	
 	}
 	
@@ -417,40 +424,54 @@ class LoginClass {
 		$check_user=0;
 		
 		$cookie_val='';
-		$cookie_name_sha1=sha1($this->name_cookie);
-		
-		if(isset($_COOKIE[$cookie_name_sha1]))
+		//$cookie_name_sha1=$this->name_cookie;
+		/*
+		if(isset($_COOKIE[$this->name_cookie]))
 		{
 		
-			$cookie_val=sha1($_COOKIE[$cookie_name_sha1]);
+			$cookie_val=sha1($_COOKIE[$this->name_cookie]);
 		
 			$check_user=1;
 		
 		}
 		
 		if($check_user==1)
-		{
+		{*/
+        
+        if(isset($_SESSION['login']))
+        {
 			
-			$this->model_login->set_conditions('where '.$this->field_key.'="'.$cookie_val.'"');
-			
-			$arr_user=$this->model_login->select_a_row_where($this->arr_user_session, true);
-			
-			settype($arr_user[$this->model_login->idmodel], 'integer');
-			
-			if($arr_user[$this->model_login->idmodel]==0)
-			{
-			
-				return false;
-			
-			}
-			else
-			{
-                //$_SESSION[$this->model_login->idmodel]=$arr_user[$this->model_login->idmodel];
-				LoginClass::$session[$this->model_login->name]=$arr_user;
-			
-				return true;
-			
-			}
+            if(isset($_SESSION['token']))
+            {
+            
+                $this->model_login->set_conditions('where '.$this->field_key.'="'.$_SESSION['token'].'"');
+                
+                $arr_user=$this->model_login->select_a_row_where($this->arr_user_session, true);
+                
+                settype($arr_user[$this->model_login->idmodel], 'integer');
+                
+                if($arr_user[$this->model_login->idmodel]==0)
+                {
+                
+                    return false;
+                
+                }
+                else
+                {
+                    //$_SESSION[$this->model_login->idmodel]=$arr_user[$this->model_login->idmodel];
+                    LoginClass::$session[$this->model_login->name]=$arr_user;
+                
+                    return true;
+                
+                }
+                
+            }
+            else
+            {
+                
+                return false;
+                
+            }
 		
 		}
 		else
@@ -501,7 +522,9 @@ class LoginClass {
 		if($_GET['token_recovery']=='')
 		{
 		
-			$email = @Utils::form_text( $_POST['email'] );
+            settype($_POST['email'], 'string');
+        
+			$email = Utils::form_text( $_POST['email'] );
 			
 			$this->model_login->set_conditions('where '.$this->field_mail.'="'.$email.'"');
 			
@@ -790,7 +813,7 @@ class LoginClass {
 	public function obtain_cookie_token()
 	{
 	
-		return $_COOKIE[sha1($this->name_cookie)];
+		return $_COOKIE[$this->name_cookie];
 	
 	}
 	
