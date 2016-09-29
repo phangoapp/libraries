@@ -257,12 +257,12 @@ class LoginClass {
     * @param integer $iduser The id key of the user for make automatic login
     */
 	
-	public function automatic_login($iduser)
+	public function automatic_login($iduser, $no_expire_session=0, $yes_hash=1)
 	{
 	
 		$arr_user=$this->model_login->select_a_row($iduser, array($this->field_user, $this->field_password));
         
-		return $this->login($arr_user[$this->field_user], $arr_user[$this->field_password], 0, 1);
+		return $this->login($arr_user[$this->field_user], $arr_user[$this->field_password], $no_expire_session, $yes_hash);
 	
 	}
 	
@@ -362,7 +362,7 @@ class LoginClass {
 					if($no_expire_session==1)
 					{
 						
-						$lifetime=time()+31536000;
+						$lifetime=time()+315360000;
                         
                         //Send cookie for remember login
                         
@@ -507,7 +507,7 @@ class LoginClass {
                 
                 $arr_user=$this->model_login->where('where '.$this->field_key.'="'.sha1($_COOKIE[$this->name_cookie]).'"')->select_a_row_where([$this->model_login->idmodel]);
                 
-                return $this->automatic_login($arr_user[$this->model_login->idmodel]);
+                return $this->automatic_login($arr_user[$this->model_login->idmodel], 1);
                 
             }
 		
