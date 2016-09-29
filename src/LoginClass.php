@@ -64,7 +64,7 @@ class LoginClass {
 	public $field_recovery='token_recovery';
 	
 	/**
-	* The name of cookie
+	* The name of remember login cookie 
 	*/
 	
 	public $name_cookie='';
@@ -171,7 +171,23 @@ class LoginClass {
 	
 	public $sender='';
     
+    /**
+    * Property where text error is saved
+    */
+    
     public $txt_error='';
+    
+    /**
+    * Property that define the name variable of defined login
+    */
+    
+    public $login_name='login';
+    
+    /**
+    * Property that define the name variable of defined token
+    */
+    
+    public $token_name='token';
 	
 	/**
 	* Method for create a new LoginClass instance
@@ -347,6 +363,15 @@ class LoginClass {
 					{
 						
 						$lifetime=time()+31536000;
+                        
+                        //Send cookie for remember login
+                        
+                        if(!setcookie($this->name_cookie, $new_token, $lifetime, $this->cookie_path))
+                        {
+                            
+                            return false;
+                        
+                        }
 						
 					
 					}
@@ -358,9 +383,9 @@ class LoginClass {
                         
                     }
                     
-                    $_SESSION['login']=1;
+                    $_SESSION[$this->login_name]=1;
                     $_SESSION[$this->model_login->idmodel]=$arr_user[$this->model_login->idmodel];
-                    $_SESSION['token']=$final_token;
+                    $_SESSION[$this->token_name]=$final_token;
                     
                     /*
                     if(!setcookie($this->name_cookie, $new_token,$lifetime, $this->cookie_path))
@@ -438,13 +463,13 @@ class LoginClass {
 		if($check_user==1)
 		{*/
         
-        if(isset($_SESSION['login']))
+        if(isset($_SESSION[$this->login_name]))
         {
 			
-            if(isset($_SESSION['token']))
+            if(isset($_SESSION[$this->token_name]))
             {
             
-                $this->model_login->set_conditions('where '.$this->field_key.'="'.$_SESSION['token'].'"');
+                $this->model_login->set_conditions('where '.$this->field_key.'="'.$_SESSION[$this->token_name].'"');
                 
                 $arr_user=$this->model_login->select_a_row_where($this->arr_user_session, true);
                 
@@ -477,7 +502,14 @@ class LoginClass {
 		else
 		{
 		
-			
+			if(isset($_COOKIE[$this->name_cookie]))
+            {
+                
+                $arr_user=$this->model_login->where('where '.$this->field_key.'="'.sha1($_COOKIE[$this->name_cookie]).'"')->select_a_row_where([$this->model_login->idmodel]);
+                
+                return $this->automatic_login($arr_user[$this->model_login->idmodel]);
+                
+            }
 		
 			return false;
 				
