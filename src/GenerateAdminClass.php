@@ -220,7 +220,7 @@ class GenerateAdminClass {
             }
         
             if(!$this->model->insert($_POST, $this->safe))
-            {
+            {   
                 echo '<p><span class="error">'.$this->model->std_error.'</span></p>';
                 
                 $this->form($_POST, $action, 1);
