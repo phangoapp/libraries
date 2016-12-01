@@ -31,7 +31,7 @@ class SimpleList
 	public $arr_extra_fields_func=array();
 	public $arr_cell_sizes=array();
 	public $model_name;
-	public $where_sql='[WHERE 1=1, []]';
+	public $where_sql=['WHERE 1=1', []];
 	public $options_func='PhangoApp\PhaLibs\SimpleList::BasicOptionsListModel';
 	public $options_func_extra_args=array();
 	public $url_options='';
