@@ -31,7 +31,7 @@ class SimpleList
 	public $arr_extra_fields_func=array();
 	public $arr_cell_sizes=array();
 	public $model_name;
-	public $where_sql='';
+	public $where_sql='[WHERE 1=1, []]';
 	public $options_func='PhangoApp\PhaLibs\SimpleList::BasicOptionsListModel';
 	public $options_func_extra_args=array();
 	public $url_options='';
@@ -361,7 +361,9 @@ class SimpleList
                 if($_GET['search']!=false)
                 {
             
-                    $this->where_sql=['WHERE `'.$_GET['field_search'].'` LIKE ?', ['%'.$_GET['search'].'%']];
+                    $this->where_sql[0].='AND `'.$_GET['field_search'].'` LIKE ?';
+                    
+                    $this->where_sql[1][]='%'.$_GET['search'].'%';
                     
                 }
             
