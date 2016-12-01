@@ -34,6 +34,18 @@ class SendMail {
     
     public $smtp_encryption='';
     
+    public $transport=null;
+    
+    public $mailer=null;
+    
+    public $mail_set=null;
+    
+    /**
+    * Initialize the mail objects
+    * 
+    * 
+    */
+    
     public function __construct($sender, $smtp_host='', $smtp_user='', $smtp_pass='', $smtp_port=25, $smtp_encryption='')
     {
         
@@ -43,6 +55,43 @@ class SendMail {
         $this->smtp_pass=$smtp_pass;
         $this->smtp_port=$smtp_port;
         $this->smtp_encryption=$smtp_encryption;
+        
+        //Prepare configuration of swiftmailer
+        
+        if( $this->smtp_host!='' && $this->smtp_user!='' && $this->smtp_pass!='' )
+        {
+        
+            $this->transport = \Swift_SmtpTransport::newInstance($this->smtp_host, $this->smtp_port)->setUsername($this->smtp_user)->setPassword($this->smtp_pass);
+            
+            if($this->smtp_encryption)
+            {
+            
+                $this->transport->setEncryption($this->smtp_encryption);
+            
+            }
+            
+        }
+        else
+        {
+        
+            $this->transport = \Swift_SmtpTransport::newInstance();
+        
+        }
+        
+        //mailer
+        
+        $this->mailer = \Swift_Mailer::newInstance($this->transport);
+        
+        //message
+        
+        $this->mail_set = \Swift_Message::newInstance();
+        
+    }
+
+    public function embed_image($image_path)
+    {
+        
+        return $this->mail_set->embed(\Swift_Image::fromPath($image_path));
         
     }
 
@@ -163,35 +212,7 @@ class SendMail {
         }
         */
         
-        if( $this->smtp_host!='' && $this->smtp_user!='' && $this->smtp_pass!='' )
-        {
-        
-            $transport = \Swift_SmtpTransport::newInstance($this->smtp_host, $this->smtp_port)->setUsername($this->smtp_user)->setPassword($this->smtp_pass);
-            
-            if($this->smtp_encryption)
-            {
-            
-                $transport->setEncryption($this->smtp_encryption);
-            
-            }
-            
-        }
-        else
-        {
-        
-            $transport = \Swift_SmtpTransport::newInstance();
-        
-        }
-        
-        //mailer
-        
-        $mailer = \Swift_Mailer::newInstance($transport);
-        
-        //message
-        
-        $mail_set = \Swift_Message::newInstance();
-        
-        $mail_set->setSubject($subject);
+        $this->mail_set->setSubject($subject);
         // Set the From address with an associative array
         
         if(!defined($this->smtp_sender))
@@ -201,47 +222,47 @@ class SendMail {
         
         }
         
-        $mail_set->setFrom(array($this->sender));
+        $this->mail_set->setFrom(array($this->sender));
         // Set the To addresses with an associative array
-        $mail_set->setTo(array($email));
+        $this->mail_set->setTo(array($email));
         // Give it a body
-        $mail_set->setBody($message);
+        $this->mail_set->setBody($message);
         
-        $mail_set->setContentType('text/'.$content_type);
+        $this->mail_set->setContentType('text/'.$content_type);
         
         if(count($arr_bcc)>0)
         {
         
-            $mail_set->setBcc($arr_bcc);
+            $this->mail_set->setBcc($arr_bcc);
             
         }
         
-        $mail_set->setReplyTo(array($this->sender));
+        $this->mail_set->setReplyTo(array($this->sender));
         
         // Optionally add any attachments
         
         foreach($attachments as $attachment)
         {
         
-            $mail_set->attach(\Swift_Attachment::fromPath($attachment));
+            $this->mail_set->attach(\Swift_Attachment::fromPath($attachment));
             
         }
 
         
-        //echo $mailer->send($mail_set);
+        //echo $this->mailer->send($this->mail_set);
         
         $failures=array();
         
         try {
         
-            $mailer->send($mail_set, $failures);
+            $this->mailer->send($this->mail_set, $failures);
             
             return 1;
         }
         catch(\Exception $e)
         {
             
-            Emailer::$txt_error=$e->getMessage();
+            $this->txt_error=$e->getMessage();
             
             return 0;
         
@@ -261,7 +282,7 @@ class SendMail {
         
         //Reset transport
         
-        $transport->reset();
+        $this->transport->reset();
         
         return 1;
 
