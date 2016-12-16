@@ -13,11 +13,11 @@ class ParentLinks {
     public $field_name;
     public $idmodel;
 
-    public function __construct($url, $model_name, $parentfield_name, $field_name, $idmodel, $last_link=0, $arr_parameters=[], $arr_pretty_parameters=[])
+    public function __construct($url, $model, $parentfield_name, $field_name, $idmodel, $last_link=0, $arr_parameters=[], $arr_pretty_parameters=[])
     {
     
         $this->url=$url;
-        $this->model_name=$model_name;
+        $this->model=$model;
         $this->parentfield_name=$parentfield_name;
         $this->field_name=$field_name;
         $this->idmodel=$idmodel;
@@ -40,13 +40,13 @@ class ParentLinks {
         $arr_id_name=array(0 => I18n::lang('common', 'home', 'Home'));
         $arr_hierarchy=array();
         
-        $query=Webmodel::$model[$this->model_name]->select(array(Webmodel::$model[$this->model_name]->idmodel, $this->parentfield_name, $this->field_name), 1);
+        $query=$this->model->select(array($this->model->idmodel, $this->parentfield_name, $this->field_name), 1);
         
-        while(list($id, $father, $name)=Webmodel::$model[$this->model_name]->fetch_row($query))
+        while(list($id, $father, $name)=$this->model->fetch_row($query))
         {
             
             $arr_id_father[$id]=$father;
-            $arr_id_name[$id]=Webmodel::$model[$this->model_name]->components[$this->field_name]->show_formatted($name);
+            $arr_id_name[$id]=$this->model->components[$this->field_name]->show_formatted($name);
         
         }
         
