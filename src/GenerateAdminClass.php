@@ -54,6 +54,10 @@ class GenerateAdminClass {
     
     public $no_delete=0;
     
+    public $admin_view='admin/adminlist';
+    
+    public $admin_module='';
+    
     public function __construct($model, $url)
     {
     
@@ -116,7 +120,7 @@ class GenerateAdminClass {
                 echo $this->hierarchy->show($this->url);
                 
                 //$this->list->show();
-                echo View::load_view(array($this), 'admin/adminlist');
+                echo View::load_view(array($this), $this->admin_view, $this->admin_module);
             
             break;
     

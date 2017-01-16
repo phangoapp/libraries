@@ -323,7 +323,7 @@ class SimpleList
             if(isset($this->model->components[$_GET['field_search']]))
             {
             
-                $this->order_by='order by `'.$_GET['field_search'].'` '.$arr_order[$_GET['order']];
+                $this->order_by='order by `'.$this->model->name.'`.`'.$_GET['field_search'].'` '.$arr_order[$_GET['order']];
                 
                 //$this->url_options=Routes::add_get_parameters($this->url_options, array('field_search' => $_GET['field_search'], 'order' => $_GET['order']));
             
@@ -361,7 +361,7 @@ class SimpleList
                 if($_GET['search']!=false)
                 {
             
-                    $this->where_sql[0].='AND `'.$_GET['field_search'].'` LIKE ?';
+                    $this->where_sql[0].=' AND `'.$this->model->name.'`.`'.$_GET['field_search'].'` LIKE ?';
                     
                     $this->where_sql[1][]='%'.$_GET['search'].'%';
                     
