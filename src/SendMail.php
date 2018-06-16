@@ -61,7 +61,7 @@ class SendMail {
         if( $this->smtp_host!='' && $this->smtp_user!='' && $this->smtp_pass!='' )
         {
         
-            $this->transport = \Swift_SmtpTransport::newInstance($this->smtp_host, $this->smtp_port)->setUsername($this->smtp_user)->setPassword($this->smtp_pass);
+            $this->transport = (new \Swift_SmtpTransport($this->smtp_host, $this->smtp_port))->setUsername($this->smtp_user)->setPassword($this->smtp_pass);
             
             if($this->smtp_encryption)
             {
@@ -74,17 +74,17 @@ class SendMail {
         else
         {
         
-            $this->transport = \Swift_SmtpTransport::newInstance();
+            $this->transport = new \Swift_SmtpTransport();
         
         }
         
         //mailer
         
-        $this->mailer = \Swift_Mailer::newInstance($this->transport);
+        $this->mailer = new \Swift_Mailer($this->transport);
         
         //message
         
-        $this->mail_set = \Swift_Message::newInstance();
+        $this->mail_set = new \Swift_Message();
         
     }
 
